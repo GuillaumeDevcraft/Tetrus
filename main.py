@@ -1,57 +1,60 @@
 from math import *
 
-b10 = [[1]]
+# m = Matrice
+# n1_n2 : n1 est l'angle et n2 la taille de la matrice
 
-b20 = [[1, 1],
-       [1, 1]]
-b21 = [[1, 0],
-       [1, 1]]
-b22 = [[0, 1],
-       [1, 1]]
-b23 = [[0, 1],
-       [0, 1]]
+mPoint = [[1]]
 
-b30 = [[1, 0, 0],
-       [1, 0, 0],
-       [1, 1, 1]]
-b31 = [[0, 0, 1],
-       [0, 0, 1],
-       [1, 1, 1]]
-b32 = [[1, 0, 1],
-       [1, 1, 0],
-       [1, 0, 0]]
-b33 = [[0, 1, 0],
-       [0, 1, 1],
-       [0, 0, 1]]
-b34 = [[0, 0, 1],
-       [0, 1, 1],
-       [0, 1, 0]]
-b35 = [[0, 1, 0],
-       [0, 1, 0],
-       [0, 1, 0]]
-b36 = [[0, 0, 1],
-       [0, 1, 0],
-       [1, 0, 0]]
-b37 = [[0, 1, 0],
-       [1, 1, 1],
-       [0, 1, 0]]
+mCarre_2 = [[1, 1],
+            [1, 1]]
+mL_2 = [[1, 0],
+        [1, 1]]
+mLInverse_2 = [[0, 1],
+               [1, 1]]
+mVertical_2 = [[1, 0],
+               [1, 0]]
 
-b40 = [[1, 1, 1, 1],
-       [1, 1, 1, 1],
-       [1, 1, 1, 1],
-       [1, 1, 1, 1]]
-b41 = [[0, 1, 1, 0],
-       [1, 1, 1, 1],
-       [1, 1, 1, 1],
-       [0, 1, 1, 0]]
-b42 = [[1, 0, 0, 1],
-       [1, 0, 0, 1],
-       [1, 0, 0, 1],
-       [1, 1, 1, 1]]
-b43 = [[1, 0, 0, 0],
-       [1, 0, 0, 0],
-       [1, 0, 0, 0],
-       [1, 0, 0, 0]]
+mL_3 = [[1, 0, 0],
+        [1, 0, 0],
+        [1, 1, 1]]
+mLInverse_3 = [[0, 0, 1],
+               [0, 0, 1],
+               [1, 1, 1]]
+mV_3 = [[1, 0, 1],
+        [1, 1, 0],
+        [1, 0, 0]]
+mVInverse_3 = [[0, 1, 0],
+               [0, 1, 1],
+               [0, 0, 1]]
+mZ90_3 = [[0, 1, 0],
+          [1, 1, 0],
+          [1, 0, 0]]
+mVertical_3 = [[1, 0, 0],
+               [1, 0, 0],
+               [1, 0, 0]]
+mBarre_3 = [[0, 0, 1],
+            [0, 1, 0],
+            [1, 0, 0]]
+mPlus_3 = [[0, 1, 0],
+           [1, 1, 1],
+           [0, 1, 0]]
+
+mCarre_4 = [[1, 1, 1, 1],
+            [1, 1, 1, 1],
+            [1, 1, 1, 1],
+            [1, 1, 1, 1]]
+mPlus_4 = [[0, 1, 1, 0],
+           [1, 1, 1, 1],
+           [1, 1, 1, 1],
+           [0, 1, 1, 0]]
+mU_4 = [[1, 0, 0, 1],
+        [1, 0, 0, 1],
+        [1, 0, 0, 1],
+        [1, 1, 1, 1]]
+mVertical_4 = [[1, 0, 0, 0],
+               [1, 0, 0, 0],
+               [1, 0, 0, 0],
+               [1, 0, 0, 0]]
 b44 = [[1, 1, 1, 1],
        [1, 1, 1, 1],
        [1, 1, 1, 1],
@@ -109,6 +112,7 @@ b50 = [[1, 0, 0, 0, 0],
 
 board = open("board.txt", "a")
 
+
 def triangle(d):
     par = d % 2
 
@@ -124,19 +128,20 @@ def triangle(d):
 
 f = open("board.txt", "a")
 
+
 def losange(d):
     mid = d / 2
     par = d % 2
 
     for y in range(d):
         for x in range(d):
-            if (y <= d / 2):
-                if (x > mid - y - 2 + par and x < mid + y - par + 1):
+            if y <= d / 2:
+                if mid - y - 2 + par < x < mid + y - par + 1:
                     board.write("1  ")
                 else:
                     board.write("0  ")
             else:
-                if (x > -d + mid + y - 1 + par and x < d - y + mid - par):
+                if -d + mid + y - 1 + par < x < d - y + mid - par:
                     board.write("1  ")
                 else:
                     board.write("0  ")
@@ -151,7 +156,7 @@ def circle(d):
 
     for x in range(d):
         for y in range(d):
-            if (sqrt((x - center) ** 2 + (y - center) ** 2) < d / 2):
+            if sqrt((x - center) ** 2 + (y - center) ** 2) < d / 2:
                 board.write("1  ")
             else:
                 board.write("0  ")
@@ -198,7 +203,7 @@ def printConfiguration():
 def inputSize():
     while size < 21 or size > 26:
         printLine()
-        print("     Choisir la Taille du plateau de jeu Entre :")
+        print("     Choisir la taille du plateau de jeu entre :")
         print("         min 21")
         print("         max 26")
         printLine()
@@ -207,9 +212,9 @@ def inputSize():
 
 def printGameboard():
     print(end="     ")
-    for i in range(1,10):
+    for i in range(1, 10):
         print(i, end="  ")
-    for i in range(10,size):
+    for i in range(10, size):
         print(i, end=" ")
     print(size)
 
@@ -217,17 +222,18 @@ def printGameboard():
         print(end="  ")
     print("")
 
-    board = open("board.txt", "r")
-    lines = board.readlines()
-    for i in range(1,size + 1):
+    boardRead = open("board.txt", "r")
+    lines = boardRead.readlines()
+    for i in range(1, size + 1):
         space = "   "
-        if(i<10):
-            space +=" "
+        if i < 10:
+            space += " "
         print(i, end=space)
         line = lines[i - 1]
         line = line.replace("1", "ᴥ")
         line = line.replace("0", " ")
 
-        print(line,end="")
+        print(line, end="")
+
 
 printConfiguration()
