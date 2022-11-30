@@ -111,6 +111,11 @@ b50 = [[1, 0, 0, 0, 0],
        [1, 0, 0, 0, 0]]
 
 board = open("board.txt", "a")
+maxSize = 26
+minSize = 21
+randomBlock = True;
+size = 21
+form = "TRIANGLE"
 
 
 def triangle(d):
@@ -118,7 +123,7 @@ def triangle(d):
 
     for y in range(d):
         for x in range(d * 2 + par):
-            if (x < d - y - 1 + par or x > d + y):
+            if x < d - y - 1 + par or x > d + y:
                 board.write("0  ")
             else:
                 board.write("1  ")
@@ -127,7 +132,6 @@ def triangle(d):
 
 
 f = open("board.txt", "a")
-
 
 def losange(d):
     mid = d / 2
@@ -175,46 +179,105 @@ def jumpPage():
 
 
 def printHomepage():
+    jumpPage()
     printLine()
     print(" 1: Commencer à jouer")
-    print(" 2: Règles du jeu")
+    print(" 2: Paramétrer le jeu")
     printLine()
 
+def inputHomePage():
+    choice = input()
+    match choice:
+        case "1":
+            printGameboard()
+        case "2":
+            print
+        case _:
+            inputHomePage()
 
-size = 21
-form = "TRIANGLE"
-randomBloc = True
-
+def printRules():
+    jumpPage()
+    printLine()
+    printLine()
+    print("")
+    print("     1: HomePage")
+def inputRules():
+    choice = input()
+    match choice:
+        case "1":
+            printHomepage()
+            inputHomePage()
+        case _:
+            inputRules()
 
 def printConfiguration():
+    alea = "TOUT les blocs"
+    if randomBlock:
+        alea = "Blocs aléatoires"
+
+    jumpPage()
     printLine()
-    print("     Choisir forme du plateau")
+    print("     Choisir forme du plateau :      "+form)
     print("         1 : Triangle")
     print("         2 : Losange")
     print("         3 : Cercle")
-    print("     Choisir Règles du jeu")
+    print("     Choisir Règles du jeu :         "+alea)
     print("         4 : Blocs aléatoires")
     print("         5 : TOUT les blocs")
     print("")
     print("         6 : LANCER")
     printLine()
+def inputConfiguration():
+    choice = input()
+    stayPage = True
+
+    match choice:
+        case "1":
+            form = "TRIANGLE"
+        case "2":
+            form = "LOSANGE"
+        case "3":
+            form = "CERCLE"
+        case "4":
+            randomBlock = True
+        case "5":
+            randomBlock = False
+        case "6":
+            stayPage = False
+            printSizeChoice()
+
+    if stayPage:
+        printConfiguration()
+        inputConfiguration()
 
 
-def inputSize():
-    while size < 21 or size > 26:
-        printLine()
-        print("     Choisir la taille du plateau de jeu entre :")
-        print("         min 21")
-        print("         max 26")
-        printLine()
-        size = int(input())
+
+def printSizeChoice():
+    jumpPage()
+    printLine()
+    print("     Choisir la Taille du plateau de jeu Entre :")
+    print("         min "+str(minSize))
+    print("         max "+str(maxSize))
+    printLine()
+
+def inputSizeChoice():
+    try:
+        choice = int(input())
+        if(minSize<choice<maxSize):
+            size = choice
+            printGameboard()
+        else:
+            inputSizeChoice()
+
+    except ValueError:
+        inputSizeChoice()
 
 
 def printGameboard():
     print(end="     ")
-    for i in range(1, 10):
+    for i in range(1,10):
         print(i, end="  ")
-    for i in range(10, size):
+    for i in range(10,size):
         print(i, end=" ")
     print(size)
 
@@ -222,18 +285,17 @@ def printGameboard():
         print(end="  ")
     print("")
 
-    boardRead = open("board.txt", "r")
-    lines = boardRead.readlines()
-    for i in range(1, size + 1):
+    board = open("board.txt", "r")
+    lines = board.readlines()
+    for i in range(1,size + 1):
         space = "   "
-        if i < 10:
-            space += " "
+        if(i<10):
+            space +=" "
         print(i, end=space)
         line = lines[i - 1]
         line = line.replace("1", "ᴥ")
         line = line.replace("0", " ")
 
-        print(line, end="")
+        print(line,end="")
 
-
-printConfiguration()
+printHomepage()
