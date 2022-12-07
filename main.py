@@ -1,114 +1,148 @@
+# coding=utf8
+
 from math import *
+import numpy as np
 
-# m = Matrice
-# n1_n2 : n1 est l'angle et n2 la taille de la matrice
-
-mPoint = [[1]]
-
-mCarre_2 = [[1, 1],
-            [1, 1]]
-mL_2 = [[1, 0],
-        [1, 1]]
-mLInverse_2 = [[0, 1],
-               [1, 1]]
-mVertical_2 = [[1, 0],
-               [1, 0]]
-
-mL_3 = [[1, 0, 0],
-        [1, 0, 0],
-        [1, 1, 1]]
-mLInverse_3 = [[0, 0, 1],
-               [0, 0, 1],
-               [1, 1, 1]]
-mV_3 = [[1, 0, 1],
-        [1, 1, 0],
-        [1, 0, 0]]
-mVInverse_3 = [[0, 1, 0],
-               [0, 1, 1],
-               [0, 0, 1]]
-mZ90_3 = [[0, 1, 0],
-          [1, 1, 0],
+# formes t=tous c=cercle l=losange
+tl = [[0, 0, 0, 0],
+      [0, 0, 0, 0],
+      [1, 0, 0, 0],
+      [1, 1, 0, 0]]
+tL = [[0, 0, 0, 0],
+      [1, 0, 0, 0],
+      [1, 0, 0, 0],
+      [1, 1, 0, 0]]
+tT = [[0, 0, 0, 0],
+      [0, 0, 0, 0],
+      [0, 1, 0, 0],
+      [1, 1, 1, 0]]
+tStair = [[0, 0, 0, 0],
+          [0, 0, 0, 0],
+          [1, 1, 0, 0],
+          [0, 1, 1, 0]]
+tDot = [[0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+        [1, 0, 0, 0]]
+tSquare = [[0, 0, 0, 0],
+           [0, 0, 0, 0],
+           [1, 1, 0, 0],
+           [1, 1, 0, 0]]
+tLine = [[0, 0, 0, 0],
+         [0, 0, 0, 0],
+         [0, 0, 0, 0],
+         [1, 1, 1, 1]]
+cSquare = [[0, 0, 0, 0, 0],
+           [1, 1, 1, 1, 0],
+           [1, 1, 1, 1, 0],
+           [1, 1, 1, 1, 0],
+           [1, 1, 1, 1, 0]]
+cCircle = [[0, 0, 0, 0, 0],
+           [0, 1, 1, 0, 0],
+           [1, 1, 1, 1, 0],
+           [1, 1, 1, 1, 0],
+           [0, 1, 1, 0, 0]]
+cL = [[0, 0, 0, 0, 0],
+      [0, 0, 0, 1, 0],
+      [0, 0, 0, 1, 0],
+      [0, 0, 0, 1, 0],
+      [1, 1, 1, 1, 0]]
+cRectangle = [[0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0],
+              [0, 0, 0, 0, 0],
+              [1, 1, 1, 1, 0],
+              [1, 1, 1, 1, 0]]
+cU = [[0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0],
+      [1, 0, 0, 0, 1],
+      [1, 1, 1, 1, 1]]
+cLine = [[0, 0, 0, 0, 0],
+         [0, 0, 0, 0, 0],
+         [0, 0, 0, 0, 0],
+         [0, 0, 0, 0, 0],
+         [1, 1, 1, 1, 1]]
+cll = [[0, 0, 0, 0, 0],
+       [0, 0, 0, 0, 0],
+       [0, 0, 0, 0, 0],
+       [1, 0, 0, 0, 1],
+       [1, 1, 1, 1, 1]]
+cu = [[0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0],
+      [1, 0, 0, 1, 0],
+      [1, 0, 0, 1, 0],
+      [1, 1, 1, 1, 0]]
+cG = [[0, 0, 0, 0, 0],
+      [1, 0, 0, 0, 0],
+      [1, 0, 0, 0, 0],
+      [1, 0, 0, 1, 0],
+      [1, 1, 1, 1, 0]]
+cBottle = [[0, 0, 0, 0, 0],
+           [0, 0, 0, 0, 0],
+           [0, 0, 0, 0, 0],
+           [1, 1, 1, 1, 0],
+           [1, 1, 1, 0, 0]]
+lStairs = [[0, 0, 0, 0, 0],
+           [0, 0, 1, 1, 0],
+           [0, 1, 1, 0, 0],
+           [1, 1, 0, 0, 0],
+           [1, 0, 0, 0, 0]]
+lT = [[0, 0, 0, 0, 0],
+      [1, 0, 0, 0, 0],
+      [1, 1, 1, 1, 0],
+      [1, 1, 1, 1, 0],
+      [1, 0, 0, 0, 0]]
+lline = [[0, 0, 0, 0, 0],
+         [0, 0, 0, 0, 0],
+         [0, 0, 0, 0, 0],
+         [0, 0, 0, 0, 0],
+         [1, 1, 1, 1, 1]]
+lt = [[0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0],
+      [1, 0, 0, 0, 0],
+      [1, 1, 1, 0, 0],
+      [1, 0, 0, 0, 0]]
+lTriangle = [[0, 0, 0, 0, 0],
+             [0, 0, 0, 0, 0],
+             [0, 0, 1, 0, 0],
+             [0, 1, 1, 1, 0],
+             [1, 1, 1, 1, 1]]
+lSquare = [[0, 0, 0, 0, 0],
+           [1, 1, 1, 1, 0],
+           [1, 1, 1, 1, 0],
+           [1, 1, 1, 1, 0],
+           [1, 1, 1, 1, 0]]
+lx = [[0, 0, 0, 0, 0],
+      [1, 0, 0, 1, 0],
+      [0, 1, 1, 0, 0],
+      [0, 1, 1, 0, 0],
+      [1, 0, 0, 1, 0]]
+ll = [[0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0],
+      [1, 1, 1, 1, 0],
+      [0, 0, 0, 1, 0]]
+trS = [[0, 1, 1],
+       [0, 1, 0],
+       [1, 1, 0]]
+trSReversed = [[1, 1, 0],
+               [0, 1, 0],
+               [0, 1, 1]]
+trDiagonal = [[1, 0, 0],
+              [0, 1, 0],
+              [0, 0, 1]]
+trDiagonalreversed = [[0, 0, 1],
+                      [0, 1, 0],
+                      [1, 0, 0]]
+trLine = [[1, 0, 0],
+          [1, 0, 0],
           [1, 0, 0]]
-mVertical_3 = [[1, 0, 0],
-               [1, 0, 0],
-               [1, 0, 0]]
-mBarre_3 = [[0, 0, 1],
-            [0, 1, 0],
-            [1, 0, 0]]
-mPlus_3 = [[0, 1, 0],
+trCross = [[0, 1, 0],
            [1, 1, 1],
            [0, 1, 0]]
-
-mCarre_4 = [[1, 1, 1, 1],
-            [1, 1, 1, 1],
-            [1, 1, 1, 1],
-            [1, 1, 1, 1]]
-mPlus_4 = [[0, 1, 1, 0],
-           [1, 1, 1, 1],
-           [1, 1, 1, 1],
-           [0, 1, 1, 0]]
-mU_4 = [[1, 0, 0, 1],
-        [1, 0, 0, 1],
-        [1, 0, 0, 1],
-        [1, 1, 1, 1]]
-mVertical_4 = [[1, 0, 0, 0],
-               [1, 0, 0, 0],
-               [1, 0, 0, 0],
-               [1, 0, 0, 0]]
-b44 = [[1, 1, 1, 1],
-       [1, 1, 1, 1],
-       [1, 1, 1, 1],
-       [1, 1, 1, 1]]
-b45 = [[0, 0, 0, 0],
-       [1, 0, 0, 1],
-       [1, 0, 0, 1],
-       [1, 1, 1, 1]]
-b46 = [[1, 0, 0, 0],
-       [1, 0, 0, 0],
-       [1, 0, 0, 0],
-       [1, 1, 1, 1]]
-b47 = [[1, 0, 0, 0],
-       [1, 0, 0, 0],
-       [1, 0, 0, 1],
-       [1, 1, 1, 1]]
-b48 = [[0, 0, 0, 0],
-       [0, 0, 0, 0],
-       [1, 1, 1, 1],
-       [1, 1, 1, 0]]
-b49 = [[0, 0, 0, 0],
-       [0, 0, 0, 0],
-       [1, 1, 1, 1],
-       [1, 1, 1, 1]]
-b410 = [[1, 0, 0, 1],
-        [0, 1, 1, 0],
-        [0, 1, 1, 1],
-        [1, 0, 0, 1]]
-b411 = [[0, 0, 0, 0],
-        [0, 0, 0, 1],
-        [1, 1, 1, 1],
-        [0, 0, 0, 1]]
-b412 = [[0, 0, 0, 0],
-        [0, 0, 0, 0],
-        [0, 0, 0, 1],
-        [1, 1, 1, 1]]
-b413 = [[1, 1, 1, 1],
-        [0, 0, 0, 1],
-        [0, 0, 0, 0],
-        [0, 0, 0, 0]]
-b414 = [[0, 0, 0, 1],
-        [0, 0, 1, 1],
-        [0, 1, 1, 0],
-        [1, 1, 0, 0]]
-b415 = [[1, 1, 1, 1],
-        [0, 1, 1, 0],
-        [0, 1, 1, 0],
-        [0, 1, 1, 0]]
-
-b50 = [[1, 0, 0, 0, 0],
-       [1, 0, 0, 0, 0],
-       [1, 0, 0, 0, 0],
-       [1, 0, 0, 0, 0],
-       [1, 0, 0, 0, 0]]
+trLineSmall = [[0, 0, 0],
+               [0, 0, 0],
+               [1, 1, 0]]
 
 board = open("board.txt", "a")
 maxSize = 26
@@ -118,20 +152,55 @@ size = 21
 form = "TRIANGLE"
 
 
-def triangle(d):
-    par = d % 2
+class Game:
+    def __init__(self, size=21):
+        self.board = []
+        self.size = size
 
-    for y in range(d):
-        for x in range(d * 2 + par):
-            if x < d - y - 1 + par or x > d + y:
-                board.write("0  ")
-            else:
-                board.write("1  ")
+    def save_grid(self, path):
+        with open(path, "w") as file:
+            for val in self.board:
+                file.write(" ".join(val))
+                file.write("\n")
 
-        board.write("\n")
+    def makeTriangle(self, d):
+        par = d % 2
 
+        for y in range(d):
+            ligne = []
+            for x in range(d * 2 + par):
+                if x < d - y - 1 + par or x > d + y:
+                    ligne.append("0  ")
+                else:
+                    ligne.append("1  ")
 
-f = open("board.txt", "a")
+            self.board.append(ligne)
+
+    def printGameboard(self):
+        print(end="     ")
+        for i in range(1, 10):
+            print(i, end="  ")
+        for i in range(10, self.size):
+            print(i, end=" ")
+        print(self.size)
+
+        for i in range(self.size):
+            print(end="  ")
+        print(" ")
+
+        file = open("board.txt", "r")
+        lines = board.readlines()
+        for i in range(1, self.size + 1):
+            space = "   "
+            if i < 10:
+                space += " "
+            print(i, end=space)
+            line = lines[i - 1]
+            line = line.replace("1", "ᴥ")
+            line = line.replace("0", " ")
+
+            print(line, end="")
+
 
 
 def losange(d):
@@ -187,15 +256,17 @@ def printHomepage():
     printLine()
 
 
+"""
 def inputHomePage():
     choice = input()
     match choice:
         case "1":
             printGameboard()
         case "2":
-            printConfiguration()
+            print
         case _:
             inputHomePage()
+"""
 
 
 def printRules():
@@ -206,6 +277,7 @@ def printRules():
     print("     1: HomePage")
 
 
+"""
 def inputRules():
     choice = input()
     match choice:
@@ -214,6 +286,7 @@ def inputRules():
             inputHomePage()
         case _:
             inputRules()
+"""
 
 
 def printConfiguration():
@@ -231,10 +304,11 @@ def printConfiguration():
     print("         4 : Blocs aléatoires")
     print("         5 : TOUT les blocs")
     print("")
-    print("         6 : LANCER")
+    print("         6 : LANCER LE JEU")
     printLine()
 
 
+"""
 def inputConfiguration():
     choice = input()
     stayPage = True
@@ -257,6 +331,7 @@ def inputConfiguration():
     if stayPage:
         printConfiguration()
         inputConfiguration()
+"""
 
 
 def printSizeChoice():
@@ -281,30 +356,41 @@ def inputSizeChoice():
         inputSizeChoice()
 
 
-def printGameboard():
-    print(end="     ")
-    for i in range(1, 10):
-        print(i, end="  ")
-    for i in range(10, size):
-        print(i, end=" ")
-    print(size)
+def printBlocksChoice():
+    blocksToDisplay = []
 
-    for i in range(size):
-        print(end="  ")
+    jumpPage()
+    printLine()
+    printLine()
     print("")
 
-    board = open("board.txt", "r")
-    lines = board.readlines()
-    for i in range(1, size + 1):
-        space = "   "
-        if (i < 10):
-            space += " "
-        print(i, end=space)
-        line = lines[i - 1]
-        line = line.replace("1", "ᴥ")
-        line = line.replace("0", " ")
 
-        print(line, end="")
+def isInPoly(points, x, y):
+    #source : https://www.eecs.umich.edu/courses/eecs380/HANDOUTS/PROJ2/InsidePoly.html
+    #Randolph Franklin
+    count = 0
 
+    npol = len(points)
+    for i in range(0, npol, 1):
+        j = (i+1)%npol
+        if ((((points[i][1] <= y) and (y < points[j][1])) or
+             ((points[j][1] <= y) and (y < points[i][1]))) and
+                (x < (points[j][0] - points[i][0]) * (y - points[i][1]) / (points[j][1] - points[i][1]) + points[i][0])):
+            count += 1
 
-printHomepage()
+    return not count%2==0
+
+trianglePoly = [[0,0],[9,9],[0,9],[9,0]]
+def poly(points):
+    board = open("board.txt", "a")
+
+    for y in range(size):
+        for x in range(size):
+            if isInPoly(points,x,y):
+                board.write("1  ")
+            else:
+                board.write("0  ")
+        board.write("\n")
+    board.close()
+
+poly(trianglePoly)
