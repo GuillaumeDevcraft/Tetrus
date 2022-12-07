@@ -113,7 +113,7 @@ b50 = [[1, 0, 0, 0, 0],
 board = open("board.txt", "a")
 maxSize = 26
 minSize = 21
-randomBlock = True;
+randomBlock = True
 size = 21
 form = "TRIANGLE"
 
@@ -132,6 +132,7 @@ def triangle(d):
 
 
 f = open("board.txt", "a")
+
 
 def losange(d):
     mid = d / 2
@@ -185,15 +186,17 @@ def printHomepage():
     print(" 2: Paramétrer le jeu")
     printLine()
 
+
 def inputHomePage():
     choice = input()
     match choice:
         case "1":
             printGameboard()
         case "2":
-            print
+            printConfiguration()
         case _:
             inputHomePage()
+
 
 def printRules():
     jumpPage()
@@ -201,6 +204,8 @@ def printRules():
     printLine()
     print("")
     print("     1: HomePage")
+
+
 def inputRules():
     choice = input()
     match choice:
@@ -210,6 +215,7 @@ def inputRules():
         case _:
             inputRules()
 
+
 def printConfiguration():
     alea = "TOUT les blocs"
     if randomBlock:
@@ -217,16 +223,18 @@ def printConfiguration():
 
     jumpPage()
     printLine()
-    print("     Choisir forme du plateau :      "+form)
+    print("     Choisir forme du plateau :      " + form)
     print("         1 : Triangle")
     print("         2 : Losange")
     print("         3 : Cercle")
-    print("     Choisir Règles du jeu :         "+alea)
+    print("     Choisir Règles du jeu :         " + alea)
     print("         4 : Blocs aléatoires")
     print("         5 : TOUT les blocs")
     print("")
     print("         6 : LANCER")
     printLine()
+
+
 def inputConfiguration():
     choice = input()
     stayPage = True
@@ -251,19 +259,19 @@ def inputConfiguration():
         inputConfiguration()
 
 
-
 def printSizeChoice():
     jumpPage()
     printLine()
     print("     Choisir la Taille du plateau de jeu Entre :")
-    print("         min "+str(minSize))
-    print("         max "+str(maxSize))
+    print("         min " + str(minSize))
+    print("         max " + str(maxSize))
     printLine()
+
 
 def inputSizeChoice():
     try:
         choice = int(input())
-        if(minSize<choice<maxSize):
+        if (minSize < choice < maxSize):
             size = choice
             printGameboard()
         else:
@@ -275,9 +283,9 @@ def inputSizeChoice():
 
 def printGameboard():
     print(end="     ")
-    for i in range(1,10):
+    for i in range(1, 10):
         print(i, end="  ")
-    for i in range(10,size):
+    for i in range(10, size):
         print(i, end=" ")
     print(size)
 
@@ -287,15 +295,16 @@ def printGameboard():
 
     board = open("board.txt", "r")
     lines = board.readlines()
-    for i in range(1,size + 1):
+    for i in range(1, size + 1):
         space = "   "
-        if(i<10):
-            space +=" "
+        if (i < 10):
+            space += " "
         print(i, end=space)
         line = lines[i - 1]
         line = line.replace("1", "ᴥ")
         line = line.replace("0", " ")
 
-        print(line,end="")
+        print(line, end="")
+
 
 printHomepage()
