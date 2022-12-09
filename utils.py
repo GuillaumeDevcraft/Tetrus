@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 def getBoardInMatrice(size):
     matrice = []
     board = open("board.txt", "r")
@@ -20,4 +21,8 @@ def valid_position(grid, bloc, i, j):
             if bloc[k][l]==1 and grid[i+k][j+l]!=1 :
                 output=False
     return output
+=======
+def rotate_bloc(bloc, dir):
+    return dir
+>>>>>>> d530ad9 (on sen fich un peu)
 
