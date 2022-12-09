@@ -143,6 +143,10 @@ trLineSmall = [[0, 0, 0],
                [0, 0, 0],
                [1, 1, 0]]
 
+gridCircle = []
+gridTriangle = []
+gridSquare = []
+
 board = open("board.txt", "a")
 maxSize = 26
 minSize = 21
@@ -153,15 +157,28 @@ form = "TRIANGLE"
 
 class Game:
     def __init__(self, size=21):
-        self.board = []
+        self.grid = []
         self.size = size
         self.score = 0
+        self.error = 0 #max 3 erreurs successives
+        self.path = "board.txt"
+        self.grid = "TRIANGLE" #forme du plateau
 
     def save_grid(self, path):
         with open(path, "w") as file:
-            for val in self.board:
-                file.write(" ".join(val))
+            for val in self.grid:
+                file.write("  ".join(val))
                 file.write("\n")
+
+    def read_grid(self):
+        board = open(self.path, "r")
+        lines = board.readlines()
+
+        for x in range(len(size)):
+            l = lines[x].split("  ").pop(size - 1)
+
+            for y in range(len(size)):
+                self.grid[x][y] = int(l[y])
 
     def makeTriangle(self, d):
         par = d % 2
@@ -174,9 +191,13 @@ class Game:
                 else:
                     ligne.append("1  ")
 
-            self.board.append(ligne)
+            self.grid.append(ligne)
 
-    def printGameboard(self):
+    def print_grid(self):
+        print("SCORE :"+self.score)
+        print()
+        print("0    : ARRETER LE JEU")
+
         print(end="     ")
         for i in range(1, 10):
             print(i, end="  ")
@@ -188,7 +209,7 @@ class Game:
             print(end="  ")
         print(" ")
 
-        file = open("board.txt", "r")
+        file = open(self.path, "r")
         lines = board.readlines()
         for i in range(1, self.size + 1):
             space = "   "
@@ -205,7 +226,7 @@ class Game:
         for i in range(len(board)):
             l = board[i]
 
-            if(1 not in l):
+            if 1 not in l:
                 self.score += 8
 
     def resetLine(self, i):
@@ -219,7 +240,7 @@ class Game:
         for i in range(len(board)):
             l = board[i]
 
-            if("1" not in l):
+            if "1" not in l:
                 self.score += 8
 
     def resetColumn(self, i):
@@ -229,9 +250,64 @@ class Game:
                 board[i][o] = 1
                 self.score += 2
 
+    def fallBlocks(self):
+        felt = False
 
+        for x in range(size):
+            for y in range(1,size):
+                if board[x][y] == 2 and board[x][y-1] == 1:
+                    board[x][y] == 1
+                    board[x][y - 1] == 2
+                    felt = True
 
+        return felt
 
+    def print_blocs(self):
+        blocs = []
+
+        match self.grid:
+            case "TRIANGLE":
+                blocs = gridTriangle
+            case "CARRE":
+                blocs = gridSquare
+            case "CERCLE":
+                blocs = gridCircle
+
+        for i in range(len(blocs)):
+            b = blocs[i]
+            print("Bloc"+i+"   :")
+
+            for l in b:
+                for c in l:
+                    print(c+"  ")
+                print()
+
+            print("-------------------")
+
+        print()
+
+    def valid_position(self, bloc, i, j):
+        output = True
+        if len(bloc) > len(self.grid) - i + 1:  # vérif si pas out of range en hauteur
+            return False
+        if len(bloc) > len(self.grid[0]) - j + 1:  # vérif pas out of range en longueur
+            return False
+        for k in range(len(bloc)):
+            for l in range(len(bloc)):
+                if bloc[k][l] == 1 and self.grid[i + k][j + l] != 1:
+                    output = False
+        return output
+
+    def emplace_bloc(self, bloc, i, j):
+        L = len(bloc)
+        l = len(bloc[0])
+
+        for x in range(L):
+            for y in range(l):
+                self.grid[i+x][j+y] = bloc[x][y]
+
+    def endGame(self):
+        print("SCORE : "+self.score)
 
 def losange(d):
     mid = d / 2
@@ -286,17 +362,17 @@ def printHomepage():
     printLine()
 
 
-"""
+
 def inputHomePage():
     choice = input()
     match choice:
         case "1":
-            printGameboard()
+            Game
         case "2":
             print
         case _:
             inputHomePage()
-"""
+
 
 
 def printRules():
@@ -307,7 +383,7 @@ def printRules():
     print("     1: HomePage")
 
 
-"""
+
 def inputRules():
     choice = input()
     match choice:
@@ -316,7 +392,7 @@ def inputRules():
             inputHomePage()
         case _:
             inputRules()
-"""
+
 
 
 def printConfiguration():
@@ -338,7 +414,7 @@ def printConfiguration():
     printLine()
 
 
-"""
+
 def inputConfiguration():
     choice = input()
     stayPage = True
@@ -361,7 +437,7 @@ def inputConfiguration():
     if stayPage:
         printConfiguration()
         inputConfiguration()
-"""
+
 
 
 def printSizeChoice():
