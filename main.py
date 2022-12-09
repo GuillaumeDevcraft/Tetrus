@@ -1,7 +1,6 @@
 # coding=utf8
 
 from math import *
-import numpy as np
 
 # formes t=tous c=cercle l=losange
 tl = [[0, 0, 0, 0],
@@ -156,6 +155,7 @@ class Game:
     def __init__(self, size=21):
         self.board = []
         self.size = size
+        self.score = 0
 
     def save_grid(self, path):
         with open(path, "w") as file:
@@ -200,6 +200,36 @@ class Game:
             line = line.replace("0", " ")
 
             print(line, end="")
+
+    def checkLines(self):
+        for i in range(len(board)):
+            l = board[i]
+
+            if(1 not in l):
+                self.score += 8
+
+    def resetLine(self, i):
+        for o in range(len(board)):
+            if board[i][o] == 2:
+                board[i][o] = 1
+                self.score += 2
+
+
+    def checkColumns(self):
+        for i in range(len(board)):
+            l = board[i]
+
+            if("1" not in l):
+                self.score += 8
+
+    def resetColumn(self, i):
+
+        for o in range(len(board)):
+            if board[o][i] == 2:
+                board[i][o] = 1
+                self.score += 2
+
+
 
 
 
@@ -348,7 +378,7 @@ def inputSizeChoice():
         choice = int(input())
         if (minSize < choice < maxSize):
             size = choice
-            printGameboard()
+            Game
         else:
             inputSizeChoice()
 
