@@ -222,28 +222,28 @@ class Game:
 
             print(line, end="")
 
-    def checkLines(self):
+    def row_states(self):
         for i in range(len(board)):
             l = board[i]
 
             if 1 not in l:
                 self.score += 8
 
-    def resetLine(self, i):
+    def row_clear(self, i):
         for o in range(len(board)):
             if board[i][o] == 2:
                 board[i][o] = 1
                 self.score += 2
 
 
-    def checkColumns(self):
+    def col_state(self):
         for i in range(len(board)):
             l = board[i]
 
             if "1" not in l:
                 self.score += 8
 
-    def resetColumn(self, i):
+    def col_clear(self, i):
 
         for o in range(len(board)):
             if board[o][i] == 2:
@@ -272,6 +272,10 @@ class Game:
                 blocs = gridSquare
             case "CERCLE":
                 blocs = gridCircle
+            case "POLY":
+                blocs = gridTriangle
+            case _:
+                return
 
         for i in range(len(blocs)):
             b = blocs[i]
