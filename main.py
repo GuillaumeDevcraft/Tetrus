@@ -1,4 +1,4 @@
-# coding=utf8
+# coding=utf-8
 
 from math import *
 
@@ -143,26 +143,21 @@ trLineSmall = [[0, 0, 0],
                [0, 0, 0],
                [1, 1, 0]]
 
-gridCircle = []
-gridTriangle = []
-gridSquare = []
-
-board = open("board.txt", "a")
-maxSize = 26
-minSize = 21
-randomBlock = True
-size = 21
-form = "TRIANGLE"
+gridCommon = [tl, tDot, tLine, tSquare, tStair, tT, tL]
+gridCircle = [cu, cG, cll, cBottle, cLine, cL, cCircle, cSquare, cRectangle, cU]
+gridTriangle = [trLine, trCross, trLineSmall, trS, trDiagonal, trDiagonalreversed, trSReversed]
+gridSquare = [lSquare, ll, lx, lt, lline, lStairs, lT, lTriangle]
 
 
 class Game:
     def __init__(self, size=21):
-        self.grid = []
         self.size = size
+        self.grid = []
         self.score = 0
-        self.error = 0 #max 3 erreurs successives
+        self.error = 0  # max 3 erreurs successives
         self.path = "board.txt"
-        self.grid = "TRIANGLE" #forme du plateau
+        self.shape = "TRIANGLE"  # forme du plateau
+        self.randomBlock = True
 
     def save_grid(self, path):
         with open(path, "w") as file:
@@ -171,30 +166,62 @@ class Game:
                 file.write("\n")
 
     def read_grid(self):
-        board = open(self.path, "r")
-        lines = board.readlines()
+        with open(self.path) as b:
+            lines = b.readlines()
 
-        for x in range(len(size)):
-            l = lines[x].split("  ").pop(size - 1)
+            for x in range(self.size):
+                l = lines[x].split("  ").pop(self.size - 1)
 
-            for y in range(len(size)):
-                self.grid[x][y] = int(l[y])
+                for y in range(self.size):
+                    self.grid[x][y] = int(l[y])
 
-    def makeTriangle(self, d):
-        par = d % 2
+    def makeTriangle(self):
+        par = self.size % 2
 
-        for y in range(d):
+        for y in range(self.size):
             ligne = []
-            for x in range(d * 2 + par):
-                if x < d - y - 1 + par or x > d + y:
+            for x in range(self.size * 2 + par):
+                if x < self.size - y - 1 + par or x > self.size + y:
                     ligne.append("0  ")
                 else:
                     ligne.append("1  ")
 
             self.grid.append(ligne)
 
+    def makeCircle(self):
+        center = self.size // 2
+        if self.size % 2 == 0:
+            center -= 0.5
+
+        for x in range(self.size):
+            for y in range(self.size):
+                if sqrt((x - center) ** 2 + (y - center) ** 2) < self.size / 2:
+                    board.write("1  ")
+                else:
+                    board.write("0  ")
+            board.write("\n")
+
+    def makeLosange(self):
+        mid = self.size / 2
+        par = self.size % 2
+
+        for y in range(self.size):
+            for x in range(self.size):
+                if y <= self.size / 2:
+                    if mid - y - 2 + par < x < mid + y - par + 1:
+                        board.write("1  ")
+                    else:
+                        board.write("0  ")
+                else:
+                    if -self.size + mid + y - 1 + par < x < self.size - y + mid - par:
+                        board.write("1  ")
+                    else:
+                        board.write("0  ")
+
+            board.write("\n")
+
     def print_grid(self):
-        print("SCORE :"+self.score)
+        print("SCORE :", self.score)
         print()
         print("0    : ARRETER LE JEU")
 
@@ -235,7 +262,6 @@ class Game:
                 board[i][o] = 1
                 self.score += 2
 
-
     def col_state(self):
         for i in range(len(board)):
             l = board[i]
@@ -253,9 +279,9 @@ class Game:
     def fallBlocks(self):
         felt = False
 
-        for x in range(size):
-            for y in range(1,size):
-                if board[x][y] == 2 and board[x][y-1] == 1:
+        for x in range(self.size):
+            for y in range(1, self.size):
+                if board[x][y] == 2 and board[x][y - 1] == 1:
                     board[x][y] == 1
                     board[x][y - 1] == 2
                     felt = True
@@ -279,11 +305,11 @@ class Game:
 
         for i in range(len(blocs)):
             b = blocs[i]
-            print("Bloc"+i+"   :")
+            print("Bloc" + i + "   :")
 
             for l in b:
                 for c in l:
-                    print(c+"  ")
+                    print(c + "  ")
                 print()
 
             print("-------------------")
@@ -308,43 +334,10 @@ class Game:
 
         for x in range(L):
             for y in range(l):
-                self.grid[i+x][j+y] = bloc[x][y]
+                self.grid[i + x][j + y] = bloc[x][y]
 
     def endGame(self):
-        print("SCORE : "+self.score)
-
-def losange(d):
-    mid = d / 2
-    par = d % 2
-
-    for y in range(d):
-        for x in range(d):
-            if y <= d / 2:
-                if mid - y - 2 + par < x < mid + y - par + 1:
-                    board.write("1  ")
-                else:
-                    board.write("0  ")
-            else:
-                if -d + mid + y - 1 + par < x < d - y + mid - par:
-                    board.write("1  ")
-                else:
-                    board.write("0  ")
-
-        board.write("\n")
-
-
-def circle(d):
-    center = d // 2
-    if d % 2 == 0:
-        center -= 0.5
-
-    for x in range(d):
-        for y in range(d):
-            if sqrt((x - center) ** 2 + (y - center) ** 2) < d / 2:
-                board.write("1  ")
-            else:
-                board.write("0  ")
-        board.write("\n")
+        print("SCORE : ", self.score)
 
 
 def printLine():
@@ -366,17 +359,23 @@ def printHomepage():
     printLine()
 
 
-
 def inputHomePage():
-    choice = input()
-    match choice:
-        case "1":
-            Game
-        case "2":
-            print
-        case _:
-            inputHomePage()
+    choice = ""
 
+    # On ne devrait pas sortir de cette fonction (donc du programme entier) une fois qu'on a fini de configurer le jeu.
+    while choice != "1":
+        choice = input()
+        if choice == "2":
+            printConfiguration()
+            inputConfiguration()
+    match game.shape:
+        case "TRIANGLE":
+            game.makeTriangle()
+        case "LOSANGE":
+            game.makeLosange()
+        case "CERCLE":
+            game.makeCircle()
+    game.print_grid()
 
 
 def printRules():
@@ -387,83 +386,90 @@ def printRules():
     print("     1: HomePage")
 
 
-
 def inputRules():
-    choice = input()
-    match choice:
-        case "1":
-            printHomepage()
-            inputHomePage()
-        case _:
-            inputRules()
+    choice = ""
+    reponses_possibles = ["1"]
 
+    while choice not in reponses_possibles:
+        choice = input()
+        printHomepage()
 
 
 def printConfiguration():
-    alea = "TOUT les blocs"
-    if randomBlock:
+    alea = "TOUS les blocs"
+    if game.randomBlock:
         alea = "Blocs aléatoires"
 
     jumpPage()
     printLine()
-    print("     Choisir forme du plateau :      " + form)
+    print("     Choisir forme du plateau :      ", game.shape)
     print("         1 : Triangle")
     print("         2 : Losange")
     print("         3 : Cercle")
-    print("     Choisir Règles du jeu :         " + alea)
+    print("     Choisir Règles du jeu :         ", alea)
     print("         4 : Blocs aléatoires")
-    print("         5 : TOUT les blocs")
+    print("         5 : TOUS les blocs")
+    print(f"         6 : Taille du plateau (Actuelle : {game.size})")
     print("")
-    print("         6 : LANCER LE JEU")
+    print("         7 : HOME")
     printLine()
 
 
-
 def inputConfiguration():
-    choice = input()
+    choice = ""
     stayPage = True
 
-    match choice:
-        case "1":
-            form = "TRIANGLE"
-        case "2":
-            form = "LOSANGE"
-        case "3":
-            form = "CERCLE"
-        case "4":
-            randomBlock = True
-        case "5":
-            randomBlock = False
-        case "6":
-            stayPage = False
-            printSizeChoice()
+    reponses_possibles = ["1", "2", "3", "4", "5", "6", "7"]
 
-    if stayPage:
-        printConfiguration()
-        inputConfiguration()
+    while choice not in reponses_possibles:
+        choice = ""
 
+        while choice != "7":
+            choice = input()
+            match choice:
+                case "1":
+                    game.shape = "TRIANGLE"
+                case "2":
+                    game.shape = "LOSANGE"
+                case "3":
+                    game.shape = "CERCLE"
+                case "4":
+                    game.randomBlock = True
+                case "5":
+                    game.randomBlock = False
+                case "6":
+                    printSizeChoice()
+                    inputSizeChoice()
+
+        printHomepage()
+        inputHomePage()
 
 
 def printSizeChoice():
     jumpPage()
     printLine()
-    print("     Choisir la Taille du plateau de jeu Entre :")
-    print("         min " + str(minSize))
-    print("         max " + str(maxSize))
+    print(f"     Choisir la taille du plateau de jeu entre {str(minSize)} et {str(maxSize)}")
     printLine()
 
 
 def inputSizeChoice():
-    try:
-        choice = int(input())
-        if (minSize < choice < maxSize):
-            size = choice
-            Game
-        else:
-            inputSizeChoice()
+    okay = False
 
-    except ValueError:
-        inputSizeChoice()
+    while not okay:
+        try:
+            choice = input()
+            if choice == "":
+                printConfiguration()
+                break
+
+            choice = int(input())
+            if minSize <= choice <= maxSize:
+                game.size = choice
+                okay = True
+            else:
+                raise ValueError
+        except ValueError:
+            print("Veuillez écrire un nombre entre 21 et 26 inclus")
 
 
 def printBlocksChoice():
@@ -476,31 +482,82 @@ def printBlocksChoice():
 
 
 def isInPoly(points, x, y):
-    #source : https://www.eecs.umich.edu/courses/eecs380/HANDOUTS/PROJ2/InsidePoly.html
-    #Randolph Franklin
+    # source : https://www.eecs.umich.edu/courses/eecs380/HANDOUTS/PROJ2/InsidePoly.html
+    # Randolph Franklin
     count = 0
 
     npol = len(points)
     for i in range(0, npol, 1):
-        j = (i+1)%npol
+        j = (i + 1) % npol
         if ((((points[i][1] <= y) and (y < points[j][1])) or
              ((points[j][1] <= y) and (y < points[i][1]))) and
-                (x < (points[j][0] - points[i][0]) * (y - points[i][1]) / (points[j][1] - points[i][1]) + points[i][0])):
+                (x < (points[j][0] - points[i][0]) * (y - points[i][1]) / (points[j][1] - points[i][1]) + points[i][
+                    0])):
             count += 1
 
-    return not count%2==0
+    return not count % 2 == 0
 
-trianglePoly = [[0,0],[9,9],[0,9],[9,0]]
+
+trianglePoly = [[0, 0], [9, 9], [0, 9], [9, 0]]
+
+
 def poly(points):
     board = open("board.txt", "a")
 
-    for y in range(size):
-        for x in range(size):
-            if isInPoly(points,x,y):
+    for y in range(game.size):
+        for x in range(game.size):
+            if isInPoly(points, x, y):
                 board.write("1  ")
             else:
                 board.write("0  ")
         board.write("\n")
     board.close()
 
-poly(trianglePoly)
+
+def print_blocs(shapelist):
+    for i in range(1, len(gridCommon) + 1):
+        temp2 = []
+        temp2.append(replaceBlocs(gridCommon[i]))
+    for j in range(len(temp2)):
+        print(j + 1)
+        for k in range(len(temp2[j])):
+            print
+            for l in range(len(temp2[j][k])):
+                print(temp2[j][k][l], end="")
+    for i in range(1, len(shapelist) + 1):
+        temp1 = []
+        temp1.append(replaceBlocs(shapelist[i]))
+    for j in range(len(temp1)):
+        print(j + 1 + len(gridCommon))
+        for k in range(len(temp1[j])):
+            print
+            for l in range(len(temp1[j][k])):
+                print(temp1[j][k][l], end="")
+
+
+def select_bloc():
+    pass
+
+
+# associer select bloc à partie logique en parralèle à printblocs
+
+def replaceBlocs(list):
+    for i in range(len(list)):
+        temp1 = []
+        for j in range(len(list[i])):
+            if list[i][j] == 1:
+                temp2 = "■"
+            else:
+                temp2 = " "
+            temp1.append(temp2)
+    return temp1
+
+
+if __name__ == "__main__":
+    board = open("board.txt", "a")
+    maxSize = 26
+    minSize = 21
+
+    printHomepage()
+    game = Game()
+    inputHomePage()
