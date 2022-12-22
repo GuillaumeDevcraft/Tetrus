@@ -155,14 +155,19 @@ class Game:
         self.grid = []
         self.score = 0
         self.error = 3  # max 3 erreurs successives
-        self.path = "board.txt"
+        self.path = "board1.txt"
         self.shape = "TRIANGLE"  # forme du plateau
         self.randomBlock = True
+
+        self.ended = False
+
+    def tick(self):
+        pass
 
     def save_grid(self, path):
         with open(path, "w") as file:
             for val in self.grid:
-                file.write("  ".join(val))
+                file.write("".join(val))
                 file.write("\n")
 
     def read_grid(self):
@@ -170,7 +175,7 @@ class Game:
             lines = b.readlines()
 
             for x in range(self.size):
-                l = lines[x].split("  ").pop(self.size - 1)
+                l = lines[x].split(" ").pop(self.size - 1)
 
                 for y in range(self.size):
                     self.grid[x][y] = int(l[y])
@@ -223,7 +228,7 @@ class Game:
     def print_grid(self):
         print("SCORE :", self.score)
         print("")
-        print("0    : ARRETER LE JEU")
+        print("0    : ARRÊTER LE JEU")
 
         print(end="     ")
         for i in range(1, 10):
@@ -292,7 +297,7 @@ class Game:
     def print_blocs(self):
         blocs = []
 
-        match self.grid:
+        match self.shape:
             case "TRIANGLE":
                 blocs = gridTriangle
             case "CARRE":
@@ -341,6 +346,8 @@ class Game:
         printLine()
         print("SCORE : ", self.score)
         printLine()
+
+        self.ended = True
 
 
 def printLine():
@@ -459,7 +466,7 @@ def inputConfiguration():
 def printSizeChoice():
     jumpPage()
     printLine()
-    print(f"     Choisir la taille du plateau de jeu entre {str(minSize)} et {str(maxSize)}")
+    print(f"     Choisir la taille du plateau de jeu entre {minSize} et {maxSize}")
     printLine()
 
 
@@ -552,7 +559,7 @@ def select_bloc():
     pass
 
 
-# associer select bloc à partie logique en parralèle à printblocs
+# associer select bloc à partie logique en parallèle à printblocs
 
 def replaceBlocs(list):
     for i in range(len(list)):
@@ -567,10 +574,15 @@ def replaceBlocs(list):
 
 
 if __name__ == "__main__":
-    board = open("board.txt", "r")
+
+
     maxSize = 26
     minSize = 21
 
     printHomepage()
     game = Game()
     inputHomePage()
+
+    while not game.ended:
+        game.tick()
+
