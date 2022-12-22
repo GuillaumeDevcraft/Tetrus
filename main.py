@@ -1,6 +1,8 @@
 # coding=utf-8
 
 from math import *
+from copy import deepcopy
+import random as rand
 
 # formes t=tous c=cercle l=losange
 tl = [[0, 0, 0, 0],
@@ -148,9 +150,9 @@ gridCercle = [cu, cG, cll, cBottle, cLine, cL, cCircle, cSquare, cRectangle, cU]
 gridTriangle = [trLine, trCross, trLineSmall, trS, trDiagonal, trDiagonalreversed, trSReversed]
 gridLosange = [lSquare, ll, lx, lt, lline, lStairs, lT, lTriangle]
 
-# gridCircle.append(gridCommon)
-# gridTriangle.append(gridCommon)
-# gridSquare.append(gridCommon)
+gridCercle.append(gridCommon)
+gridTriangle.append(gridCommon)
+gridLosange.append(gridCommon)
 
 class Game:
     def __init__(self, size=21):
@@ -161,19 +163,41 @@ class Game:
         self.shape = "TRIANGLE"  # forme du plateau.
         self.path = "" # Le fichier dans lequel on écrit nos plateaux. Dépend de self.shape au lancement du jeu.
         self.randomBlock = True
+        self.blocks = [] # Le jeu de blocs de cette partie
+
+        self.tickCount = 0 # Combien de tours sont passés ? Cela sert pour la fonction read_grid()
 
         self.ended = False
 
+    def setup(self):
+        self.path = self.shape.lower() + ".txt"
+        match self.shape:
+            case "TRIANGLE":
+                self.blocks = deepcopy(gridTriangle)
+            case "LOSANGE":
+                self.blocks = deepcopy(gridLosange)
+            case "CERCLE":
+                self.blocks = deepcopy(gridCercle)
+            case _:
+                self.blocks = deepcopy(gridCommon) # Ce cas ne devrait jamais se produire.
+
     def tick(self):
-        pass
-        # self.print_grid()
-        # self.print_HUD()
+        self.print_grid()
+
+        if self.randomBlock:
+            rand.shuffle(self.blocks)
+            self.print_HUD(self.blocks[:3])
+        else:
+            self.print_HUD(self.blocks)
+
+        self.tickCount += 1
 
     def save_grid(self):
         with open(self.path, "w") as file:
             for ligne in self.grid:
                 file.write(" ".join(ligne))
                 file.write("\n")
+            file.write("\n")
 
     def read_grid(self):
         with open(self.path) as b:
@@ -204,7 +228,6 @@ class Game:
         for _ in range(self.size // 2):
             del self.grid[self.size // 2 + self.size % 2]
         
-
     def makeCircle(self):
         center = self.size // 2
         if self.size % 2 == 0:
@@ -241,10 +264,22 @@ class Game:
 
             self.grid.append(ligne)
 
-    def print_HUD(self):
-        print(f"SCORE : {self.score}")
-        print("")
-        print("0    : ARRÊTER LE JEU")
+    def print_HUD(self, available_blocks):
+        # On donne à chaque bloc un terrain (un "plot") de la taille de celui qui a besoin du plus d'espace.
+        plotSize = max([len(liste) for liste in available_blocks]) # Les listes par compréhension sont parfaites pour faire des opérations sur chaque élément d'une liste
+        if type(plotSize) == list:
+            plotSize = len(plotSize)
+        
+        separator = (("   " * plotSize) + "═ ")
+
+        print("╔ ",end="")
+        print(
+            separator.join([str(n) + "." for n in range(1, len(available_blocks) + 1)]),
+            end = ("   "*plotSize + "╗\n")
+        )
+
+        for block in available_blocks:
+            pass
 
     def print_grid(self):
         
@@ -271,7 +306,12 @@ class Game:
             lineStr = lineStr.replace("1", "▢")
             lineStr = lineStr.replace("0", " ")
 
-            print(lineStr)
+            # Il y a en réalité un moyen beaucoup plus compact de faire ce que je fais ici, mais pour la lisibilité du code, restons là-dessus
+            if i != 6:
+                print(lineStr)
+            else:
+                print(lineStr, end="      ")
+                print(f"|| SCORE : {self.score} ||")
 
     def row_states(self):
         for i in range(len(board)):
@@ -600,7 +640,7 @@ if __name__ == "__main__":
     inputHomePage()
 
     # Une fois que le joueur lance la partie...
-    game.path = game.shape.lower() + ".txt"
+    game.setup()
     jumpPage()
     game.print_grid()
 
