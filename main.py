@@ -144,10 +144,13 @@ trLineSmall = [[0, 0, 0],
                [1, 1, 0]]
 
 gridCommon = [tl, tDot, tLine, tSquare, tStair, tT, tL]
-gridCircle = [cu, cG, cll, cBottle, cLine, cL, cCircle, cSquare, cRectangle, cU]
+gridCercle = [cu, cG, cll, cBottle, cLine, cL, cCircle, cSquare, cRectangle, cU]
 gridTriangle = [trLine, trCross, trLineSmall, trS, trDiagonal, trDiagonalreversed, trSReversed]
-gridSquare = [lSquare, ll, lx, lt, lline, lStairs, lT, lTriangle]
+gridLosange = [lSquare, ll, lx, lt, lline, lStairs, lT, lTriangle]
 
+# gridCircle.append(gridCommon)
+# gridTriangle.append(gridCommon)
+# gridSquare.append(gridCommon)
 
 class Game:
     def __init__(self, size=21):
@@ -155,19 +158,21 @@ class Game:
         self.grid = []
         self.score = 0
         self.error = 3  # max 3 erreurs successives
-        self.path = "board1.txt"
-        self.shape = "TRIANGLE"  # forme du plateau
+        self.shape = "TRIANGLE"  # forme du plateau.
+        self.path = "" # Le fichier dans lequel on écrit nos plateaux. Dépend de self.shape au lancement du jeu.
         self.randomBlock = True
 
         self.ended = False
 
     def tick(self):
         pass
+        # self.print_grid()
+        # self.print_HUD()
 
-    def save_grid(self, path):
-        with open(path, "w") as file:
-            for val in self.grid:
-                file.write("".join(val))
+    def save_grid(self):
+        with open(self.path, "w") as file:
+            for ligne in self.grid:
+                file.write(" ".join(ligne))
                 file.write("\n")
 
     def read_grid(self):
@@ -181,17 +186,24 @@ class Game:
                     self.grid[x][y] = int(l[y])
 
     def makeTriangle(self):
-        par = self.size % 2
+        """
+        renderSize = (self.size//2 + 1)
+        par = renderSize % 2
 
-        for y in range(self.size):
+        for y in range(renderSize):
             ligne = []
-            for x in range(self.size * 2 + par):
-                if x < self.size - y - 1 + par or x > self.size + y:
-                    ligne.append("0  ")
+            for x in range(renderSize * 2 + par):
+                if x < renderSize - y - 1 + par or x > renderSize + y:
+                    ligne.append(0)
                 else:
-                    ligne.append("1  ")
+                    ligne.append(1)
 
             self.grid.append(ligne)
+        """
+        self.makeLosange()
+        for _ in range(self.size // 2):
+            del self.grid[self.size // 2 + self.size % 2]
+        
 
     def makeCircle(self):
         center = self.size // 2
@@ -199,37 +211,43 @@ class Game:
             center -= 0.5
 
         for x in range(self.size):
+            ligne = []
             for y in range(self.size):
                 if sqrt((x - center) ** 2 + (y - center) ** 2) < self.size / 2:
-                    board.write("1  ")
+                    ligne.append(1)
                 else:
-                    board.write("0  ")
-            board.write("\n")
+                    ligne.append(0)
+            
+            self.grid.append(ligne)
 
     def makeLosange(self):
         mid = self.size / 2
+        # par comme "parité"
         par = self.size % 2
 
         for y in range(self.size):
+            ligne = []
             for x in range(self.size):
                 if y <= self.size / 2:
                     if mid - y - 2 + par < x < mid + y - par + 1:
-                        board.write("1  ")
+                        ligne.append(1)
                     else:
-                        board.write("0  ")
+                        ligne.append(0)
                 else:
                     if -self.size + mid + y - 1 + par < x < self.size - y + mid - par:
-                        board.write("1  ")
+                        ligne.append(1)
                     else:
-                        board.write("0  ")
+                        ligne.append(0)
 
-            board.write("\n")
+            self.grid.append(ligne)
 
-    def print_grid(self):
-        print("SCORE :", self.score)
+    def print_HUD(self):
+        print(f"SCORE : {self.score}")
         print("")
         print("0    : ARRÊTER LE JEU")
 
+    def print_grid(self):
+        
         print(end="     ")
         for i in range(1, 10):
             print(i, end="  ")
@@ -241,19 +259,19 @@ class Game:
             print(end="  ")
         print(" ")
 
-        file = open(self.path, "r")
-        lines = board.readlines()
-        for i in range(1, self.size + 1):
+        lines = self.grid
+        for i in range(1, len(self.grid) + 1):
             space = "   "
             if i < 10:
                 space += " "
             print(i, end=space)
             line = lines[i - 1]
-            line = line.replace("1", "▢")
-            line = line.replace("0", " ")
 
-            print(line, end="")
-        file.close()
+            lineStr = "  ".join([str(el) for el in line]) # Python oblige le contenu de la liste dans join() à être de type string.
+            lineStr = lineStr.replace("1", "▢")
+            lineStr = lineStr.replace("0", " ")
+
+            print(lineStr)
 
     def row_states(self):
         for i in range(len(board)):
@@ -301,9 +319,9 @@ class Game:
             case "TRIANGLE":
                 blocs = gridTriangle
             case "CARRE":
-                blocs = gridSquare
+                blocs = gridLosange
             case "CERCLE":
-                blocs = gridCircle
+                blocs = gridCercle
             case "POLY":
                 blocs = gridTriangle
             case _:
@@ -357,7 +375,8 @@ def printLine():
 
 
 def jumpPage():
-    for i in range(32):
+    """Efface la page, en faisant 32 fois un print("")"""
+    for _ in range(32):
         print("")
 
 
@@ -390,8 +409,6 @@ def inputHomePage():
             game.makeLosange()
         case "CERCLE":
             game.makeCircle()
-    jumpPage()
-    game.print_grid()
 
 
 def printRules():
@@ -575,13 +592,17 @@ def replaceBlocs(list):
 
 if __name__ == "__main__":
 
-
-    maxSize = 26
     minSize = 21
+    maxSize = 26
 
     printHomepage()
     game = Game()
     inputHomePage()
+
+    # Une fois que le joueur lance la partie...
+    game.path = game.shape.lower() + ".txt"
+    jumpPage()
+    game.print_grid()
 
     while not game.ended:
         game.tick()
