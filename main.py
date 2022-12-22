@@ -154,7 +154,7 @@ class Game:
         self.size = size
         self.grid = []
         self.score = 0
-        self.error = 0  # max 3 erreurs successives
+        self.error = 3  # max 3 erreurs successives
         self.path = "board.txt"
         self.shape = "TRIANGLE"  # forme du plateau
         self.randomBlock = True
@@ -222,7 +222,7 @@ class Game:
 
     def print_grid(self):
         print("SCORE :", self.score)
-        print()
+        print("")
         print("0    : ARRETER LE JEU")
 
         print(end="     ")
@@ -244,10 +244,11 @@ class Game:
                 space += " "
             print(i, end=space)
             line = lines[i - 1]
-            line = line.replace("1", "ᴥ")
+            line = line.replace("1", "▢")
             line = line.replace("0", " ")
 
             print(line, end="")
+        file.close()
 
     def row_states(self):
         for i in range(len(board)):
@@ -317,7 +318,6 @@ class Game:
         print()
 
     def valid_position(self, bloc, i, j):
-        output = True
         if len(bloc) > len(self.grid) - i + 1:  # vérif si pas out of range en hauteur
             return False
         if len(bloc) > len(self.grid[0]) - j + 1:  # vérif pas out of range en longueur
@@ -325,8 +325,8 @@ class Game:
         for k in range(len(bloc)):
             for l in range(len(bloc)):
                 if bloc[k][l] == 1 and self.grid[i + k][j + l] != 1:
-                    output = False
-        return output
+                    return False
+        return True
 
     def emplace_bloc(self, bloc, i, j):
         L = len(bloc)
@@ -337,7 +337,10 @@ class Game:
                 self.grid[i + x][j + y] = bloc[x][y]
 
     def endGame(self):
+        print("")
+        printLine()
         print("SCORE : ", self.score)
+        printLine()
 
 
 def printLine():
@@ -356,6 +359,8 @@ def printHomepage():
     printLine()
     print(" 1: Commencer à jouer")
     print(" 2: Paramétrer le jeu")
+    print("")
+    print(" 3: Afficher les règles")
     printLine()
 
 
@@ -368,6 +373,9 @@ def inputHomePage():
         if choice == "2":
             printConfiguration()
             inputConfiguration()
+        elif choice == "3":
+            printRules()
+            inputRules()
     match game.shape:
         case "TRIANGLE":
             game.makeTriangle()
@@ -375,24 +383,22 @@ def inputHomePage():
             game.makeLosange()
         case "CERCLE":
             game.makeCircle()
+    jumpPage()
     game.print_grid()
 
 
 def printRules():
     jumpPage()
     printLine()
-    printLine()
+    print("     Tetrus, c'est quoi ?")
     print("")
-    print("     1: HomePage")
+    print("     Entrée: HOME")
+    printLine()
 
 
 def inputRules():
-    choice = ""
-    reponses_possibles = ["1"]
-
-    while choice not in reponses_possibles:
-        choice = input()
-        printHomepage()
+    input()
+    printHomepage()
 
 
 def printConfiguration():
@@ -406,6 +412,7 @@ def printConfiguration():
     print("         1 : Triangle")
     print("         2 : Losange")
     print("         3 : Cercle")
+    print("")
     print("     Choisir Règles du jeu :         ", alea)
     print("         4 : Blocs aléatoires")
     print("         5 : TOUS les blocs")
@@ -429,20 +436,24 @@ def inputConfiguration():
             match choice:
                 case "1":
                     game.shape = "TRIANGLE"
+                    printConfiguration()
                 case "2":
                     game.shape = "LOSANGE"
+                    printConfiguration()
                 case "3":
                     game.shape = "CERCLE"
+                    printConfiguration()
                 case "4":
                     game.randomBlock = True
+                    printConfiguration()
                 case "5":
                     game.randomBlock = False
+                    printConfiguration()
                 case "6":
                     printSizeChoice()
                     inputSizeChoice()
 
         printHomepage()
-        inputHomePage()
 
 
 def printSizeChoice():
@@ -458,11 +469,11 @@ def inputSizeChoice():
     while not okay:
         try:
             choice = input()
-            if choice == "":
+            if choice == "" or choice == "\n":
                 printConfiguration()
-                break
+                return None
 
-            choice = int(input())
+            choice = int(choice)
             if minSize <= choice <= maxSize:
                 game.size = choice
                 okay = True
@@ -470,6 +481,8 @@ def inputSizeChoice():
                 raise ValueError
         except ValueError:
             print("Veuillez écrire un nombre entre 21 et 26 inclus")
+    
+    printConfiguration()
 
 
 def printBlocksChoice():
@@ -554,7 +567,7 @@ def replaceBlocs(list):
 
 
 if __name__ == "__main__":
-    board = open("board.txt", "a")
+    board = open("board.txt", "r")
     maxSize = 26
     minSize = 21
 
