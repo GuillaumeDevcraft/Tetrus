@@ -1,16 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
   <component name="ChangeListManager">
     <list default="true" id="010071ef-34ba-4385-9b4a-5edb3b97c1d8" name="Changes" comment="renommages">
+      <change beforePath="$PROJECT_DIR$/.idea/Tetrus.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Tetrus.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils.py" afterDir="false" />
     </list>
     <list id="7c6f31b9-086d-4cb5-8eb4-ef56ba3cd49c" name="Changes by goule" comment="" />
-    <list id="eac53d8d-5855-4ff6-9879-a950486d7104" name="Changes by guill" comment="">
-      <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils.py" afterDir="false" />
-    </list>
+    <list id="eac53d8d-5855-4ff6-9879-a950486d7104" name="Changes by guill" comment="" />
     <list id="909c9117-7de3-4a48-b7aa-c84cf40f6b30" name="Changes by tamerleparping" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -31,86 +32,35 @@
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="UPDATE_TYPE" value="REBASE" />
   </component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$PROJECT_DIR$/main.py" root0="FORCE_HIGHLIGHTING" />
-  </component>
-  <component name="LineStatusTrackerManager">
-    <file path="$PROJECT_DIR$/main.py">
-      <ranges>
-        <range start1="0" end1="1" start2="0" end2="1" changelist="010071ef-34ba-4385-9b4a-5edb3b97c1d8" />
-        <range start1="145" end1="155" start2="145" end2="149" changelist="010071ef-34ba-4385-9b4a-5edb3b97c1d8" />
-        <range start1="159" end1="159" start2="153" end2="154" changelist="010071ef-34ba-4385-9b4a-5edb3b97c1d8" />
-        <range start1="160" end1="161" start2="155" end2="155" changelist="010071ef-34ba-4385-9b4a-5edb3b97c1d8" />
-        <range start1="162" end1="163" start2="156" end2="157" changelist="010071ef-34ba-4385-9b4a-5edb3b97c1d8" />
-        <range start1="164" end1="165" start2="158" end2="160" changelist="eac53d8d-5855-4ff6-9879-a950486d7104" />
-        <range start1="173" end1="175" start2="168" end2="170" changelist="010071ef-34ba-4385-9b4a-5edb3b97c1d8" />
-        <range start1="176" end1="178" start2="171" end2="173" changelist="010071ef-34ba-4385-9b4a-5edb3b97c1d8" />
-        <range start1="179" end1="181" start2="174" end2="176" changelist="010071ef-34ba-4385-9b4a-5edb3b97c1d8" />
-        <range start1="182" end1="184" start2="177" end2="179" changelist="010071ef-34ba-4385-9b4a-5edb3b97c1d8" />
-        <range start1="185" end1="186" start2="180" end2="181" changelist="010071ef-34ba-4385-9b4a-5edb3b97c1d8" />
-        <range start1="187" end1="189" start2="182" end2="184" changelist="010071ef-34ba-4385-9b4a-5edb3b97c1d8" />
-        <range start1="195" end1="195" start2="190" end2="222" changelist="010071ef-34ba-4385-9b4a-5edb3b97c1d8" />
-        <range start1="196" end1="197" start2="223" end2="224" changelist="010071ef-34ba-4385-9b4a-5edb3b97c1d8" />
-        <range start1="237" end1="238" start2="264" end2="264" changelist="010071ef-34ba-4385-9b4a-5edb3b97c1d8" />
-        <range start1="255" end1="258" start2="281" end2="284" changelist="010071ef-34ba-4385-9b4a-5edb3b97c1d8" />
-        <range start1="281" end1="282" start2="307" end2="308" changelist="010071ef-34ba-4385-9b4a-5edb3b97c1d8" />
-        <range start1="285" end1="286" start2="311" end2="312" changelist="010071ef-34ba-4385-9b4a-5edb3b97c1d8" />
-        <range start1="310" end1="311" start2="336" end2="337" changelist="010071ef-34ba-4385-9b4a-5edb3b97c1d8" />
-        <range start1="313" end1="347" start2="339" end2="340" changelist="010071ef-34ba-4385-9b4a-5edb3b97c1d8" />
-        <range start1="368" end1="369" start2="361" end2="361" changelist="010071ef-34ba-4385-9b4a-5edb3b97c1d8" />
-        <range start1="370" end1="379" start2="362" end2="378" changelist="010071ef-34ba-4385-9b4a-5edb3b97c1d8" />
-        <range start1="389" end1="390" start2="388" end2="388" changelist="010071ef-34ba-4385-9b4a-5edb3b97c1d8" />
-        <range start1="391" end1="399" start2="389" end2="395" changelist="eac53d8d-5855-4ff6-9879-a950486d7104" />
-        <range start1="402" end1="404" start2="398" end2="400" changelist="eac53d8d-5855-4ff6-9879-a950486d7104" />
-        <range start1="408" end1="409" start2="404" end2="405" changelist="eac53d8d-5855-4ff6-9879-a950486d7104" />
-        <range start1="412" end1="413" start2="408" end2="409" changelist="eac53d8d-5855-4ff6-9879-a950486d7104" />
-        <range start1="414" end1="415" start2="410" end2="412" changelist="eac53d8d-5855-4ff6-9879-a950486d7104" />
-        <range start1="416" end1="417" start2="413" end2="414" changelist="eac53d8d-5855-4ff6-9879-a950486d7104" />
-        <range start1="420" end1="421" start2="417" end2="417" changelist="010071ef-34ba-4385-9b4a-5edb3b97c1d8" />
-        <range start1="422" end1="423" start2="418" end2="419" changelist="eac53d8d-5855-4ff6-9879-a950486d7104" />
-        <range start1="425" end1="439" start2="421" end2="446" changelist="eac53d8d-5855-4ff6-9879-a950486d7104" />
-        <range start1="440" end1="446" start2="447" end2="447" changelist="010071ef-34ba-4385-9b4a-5edb3b97c1d8" />
-        <range start1="449" end1="452" start2="450" end2="451" changelist="010071ef-34ba-4385-9b4a-5edb3b97c1d8" />
-        <range start1="456" end1="466" start2="455" end2="471" changelist="eac53d8d-5855-4ff6-9879-a950486d7104" />
-        <range start1="478" end1="480" start2="483" end2="485" changelist="010071ef-34ba-4385-9b4a-5edb3b97c1d8" />
-        <range start1="484" end1="485" start2="489" end2="490" changelist="010071ef-34ba-4385-9b4a-5edb3b97c1d8" />
-        <range start1="487" end1="488" start2="492" end2="494" changelist="010071ef-34ba-4385-9b4a-5edb3b97c1d8" />
-        <range start1="490" end1="491" start2="496" end2="497" changelist="010071ef-34ba-4385-9b4a-5edb3b97c1d8" />
-        <range start1="492" end1="493" start2="498" end2="502" changelist="010071ef-34ba-4385-9b4a-5edb3b97c1d8" />
-        <range start1="496" end1="499" start2="505" end2="508" changelist="010071ef-34ba-4385-9b4a-5edb3b97c1d8" />
-        <range start1="505" end1="506" start2="514" end2="563" changelist="eac53d8d-5855-4ff6-9879-a950486d7104" />
-      </ranges>
-    </file>
-    <file path="$PROJECT_DIR$/utils.py">
-      <ranges>
-        <range start1="0" end1="1" start2="0" end2="0" changelist="eac53d8d-5855-4ff6-9879-a950486d7104" />
-        <range start1="13" end1="14" start2="12" end2="13" changelist="010071ef-34ba-4385-9b4a-5edb3b97c1d8" />
-        <range start1="20" end1="22" start2="19" end2="21" changelist="010071ef-34ba-4385-9b4a-5edb3b97c1d8" />
-        <range start1="23" end1="24" start2="22" end2="24" changelist="eac53d8d-5855-4ff6-9879-a950486d7104" />
-        <range start1="26" end1="28" start2="26" end2="26" changelist="eac53d8d-5855-4ff6-9879-a950486d7104" />
-      </ranges>
-    </file>
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
   </component>
   <component name="ProjectId" id="2I23X0lvwFxfBeq4Van4M50eRAC" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "ShowUsagesActions.previewPropertyKey": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "codeWithMe.voiceChat.enabledByDefault": "false",
-    "last_opened_file_path": "C:/Users/Idir/PycharmProjects/Tetrus/main.py",
-    "settings.editor.selected.configurable": "CodeWithMe"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;ShowUsagesActions.previewPropertyKey&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/guill/PycharmProjects/pythonProject/main.py&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;CodeWithMe&quot;
   }
-}]]></component>
+}</component>
   <component name="PyConsoleOptionsProvider">
     <option name="myPythonConsoleState">
       <console-settings>
@@ -141,19 +91,19 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="main" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
+    <configuration name="main" type="PythonConfigurationType" factoryName="Python">
       <module name="Tetrus" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
-      <option name="SDK_HOME" value="" />
+      <option name="SDK_HOME" value="C:\Users\guill\PycharmProjects\pythonProject\venv\Scripts\python.exe" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
-      <option name="IS_MODULE_SDK" value="true" />
+      <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
       <option name="SCRIPT_NAME" value="$PROJECT_DIR$/main.py" />
       <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="SHOW_COMMAND_LINE" value="true" />
       <option name="EMULATE_TERMINAL" value="false" />
       <option name="MODULE_MODE" value="false" />
       <option name="REDIRECT_INPUT" value="false" />
@@ -175,6 +125,9 @@
       <workItem from="1670427392217" duration="3854000" />
       <workItem from="1670435994389" duration="1724000" />
       <workItem from="1671031533917" duration="7355000" />
+      <workItem from="1671668854050" duration="9000" />
+      <workItem from="1671720490543" duration="105000" />
+      <workItem from="1671756445227" duration="1882000" />
     </task>
     <task id="LOCAL-00001" summary="renommages">
       <created>1669368568449</created>
@@ -218,6 +171,8 @@
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
-    <SUITE FILE_PATH="coverage/Tetrus$main.coverage" NAME="main Coverage Results" MODIFIED="1671041133423" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Tetrus$main.coverage" NAME="main Coverage Results" MODIFIED="1669366998308" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/pythonProject$main.coverage" NAME="main Coverage Results" MODIFIED="1668018428174" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/main_py$main.coverage" NAME="main Coverage Results" MODIFIED="1670429913425" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

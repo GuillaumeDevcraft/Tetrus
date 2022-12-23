@@ -1,8 +1,6 @@
 # coding=utf-8
 
 from math import *
-from copy import deepcopy
-import random as rand
 
 # formes t=tous c=cercle l=losange
 tl = [[0, 0, 0, 0],
@@ -146,143 +144,94 @@ trLineSmall = [[0, 0, 0],
                [1, 1, 0]]
 
 gridCommon = [tl, tDot, tLine, tSquare, tStair, tT, tL]
-gridCercle = [cu, cG, cll, cBottle, cLine, cL, cCircle, cSquare, cRectangle, cU]
+gridCircle = [cu, cG, cll, cBottle, cLine, cL, cCircle, cSquare, cRectangle, cU]
 gridTriangle = [trLine, trCross, trLineSmall, trS, trDiagonal, trDiagonalreversed, trSReversed]
-gridLosange = [lSquare, ll, lx, lt, lline, lStairs, lT, lTriangle]
+gridSquare = [lSquare, ll, lx, lt, lline, lStairs, lT, lTriangle]
 
-gridCercle.append(gridCommon)
-gridTriangle.append(gridCommon)
-gridLosange.append(gridCommon)
 
 class Game:
     def __init__(self, size=21):
         self.size = size
         self.grid = []
         self.score = 0
-        self.error = 3  # max 3 erreurs successives
-        self.shape = "TRIANGLE"  # forme du plateau.
-        self.path = "" # Le fichier dans lequel on écrit nos plateaux. Dépend de self.shape au lancement du jeu.
+        self.error = 0  # max 3 erreurs successives
+        self.path = "board.txt"
+        self.shape = "TRIANGLE"  # forme du plateau
         self.randomBlock = True
-        self.blocks = [] # Le jeu de blocs de cette partie
 
-        self.tickCount = 0 # Combien de tours sont passés ? Cela sert pour la fonction read_grid()
-
-        self.ended = False
-
-    def setup(self):
-        self.path = self.shape.lower() + ".txt"
-        match self.shape:
-            case "TRIANGLE":
-                self.blocks = deepcopy(gridTriangle)
-            case "LOSANGE":
-                self.blocks = deepcopy(gridLosange)
-            case "CERCLE":
-                self.blocks = deepcopy(gridCercle)
-            case _:
-                self.blocks = deepcopy(gridCommon) # Ce cas ne devrait jamais se produire.
-
-    def tick(self):
-        self.print_grid()
-
-        if self.randomBlock:
-            rand.shuffle(self.blocks)
-            self.print_HUD(self.blocks[:3])
-        else:
-            self.print_HUD(self.blocks)
-
-        self.tickCount += 1
-
-    def save_grid(self):
-        with open(self.path, "w") as file:
-            for ligne in self.grid:
-                file.write(" ".join(ligne))
+    def save_grid(self, path):
+        with open(path, "w") as file:
+            for val in self.grid:
+                file.write("  ".join(val))
                 file.write("\n")
-            file.write("\n")
 
     def read_grid(self):
         with open(self.path) as b:
             lines = b.readlines()
 
             for x in range(self.size):
-                l = lines[x].split(" ").pop(self.size - 1)
+                l = lines[x].split("  ").pop(self.size - 1)
 
                 for y in range(self.size):
                     self.grid[x][y] = int(l[y])
 
     def makeTriangle(self):
-        """
-        renderSize = (self.size//2 + 1)
-        par = renderSize % 2
+        peer = self.size % 2
 
-        for y in range(renderSize):
+        file = open(self.path, "w")
+
+        s = self.size//2+peer
+        for y in range(s):
             ligne = []
-            for x in range(renderSize * 2 + par):
-                if x < renderSize - y - 1 + par or x > renderSize + y:
-                    ligne.append(0)
+            for x in range(s * 2 - peer):
+                if x < s - y - 2 + peer or x > s + y - 1:
+                    file.write("0  ")
                 else:
-                    ligne.append(1)
+                    file.write("1  ")
 
-            self.grid.append(ligne)
-        """
-        self.makeLosange()
-        for _ in range(self.size // 2):
-            del self.grid[self.size // 2 + self.size % 2]
-        
+            file.write("\n")
+
     def makeCircle(self):
         center = self.size // 2
         if self.size % 2 == 0:
             center -= 0.5
 
+        file = open(self.path, "w")
+
         for x in range(self.size):
-            ligne = []
             for y in range(self.size):
                 if sqrt((x - center) ** 2 + (y - center) ** 2) < self.size / 2:
-                    ligne.append(1)
+                    file.write("1  ")
                 else:
-                    ligne.append(0)
-            
-            self.grid.append(ligne)
+                    file.write("0  ")
+            file.write("\n")
 
     def makeLosange(self):
         mid = self.size / 2
-        # par comme "parité"
         par = self.size % 2
 
+        file = open(self.path, "w")
+
         for y in range(self.size):
-            ligne = []
             for x in range(self.size):
                 if y <= self.size / 2:
                     if mid - y - 2 + par < x < mid + y - par + 1:
-                        ligne.append(1)
+                        file.write("1  ")
                     else:
-                        ligne.append(0)
+                        file.write("0  ")
                 else:
                     if -self.size + mid + y - 1 + par < x < self.size - y + mid - par:
-                        ligne.append(1)
+                        file.write("1  ")
                     else:
-                        ligne.append(0)
+                        file.write("0  ")
 
-            self.grid.append(ligne)
-
-    def print_HUD(self, available_blocks):
-        # On donne à chaque bloc un terrain (un "plot") de la taille de celui qui a besoin du plus d'espace.
-        plotSize = max([len(liste) for liste in available_blocks]) # Les listes par compréhension sont parfaites pour faire des opérations sur chaque élément d'une liste
-        if type(plotSize) == list:
-            plotSize = len(plotSize)
-        
-        separator = (("   " * plotSize) + "═ ")
-
-        print("╔ ",end="")
-        print(
-            separator.join([str(n) + "." for n in range(1, len(available_blocks) + 1)]),
-            end = ("   "*plotSize + "╗\n")
-        )
-
-        for block in available_blocks:
-            pass
+            file.write("\n")
 
     def print_grid(self):
-        
+        print("SCORE :", self.score)
+        print()
+        print("0    : ARRETER LE JEU")
+
         print(end="     ")
         for i in range(1, 10):
             print(i, end="  ")
@@ -294,50 +243,44 @@ class Game:
             print(end="  ")
         print(" ")
 
-        lines = self.grid
-        for i in range(1, len(self.grid) + 1):
+        file = open(self.path, "r")
+        lines = file.readlines()
+        for i in range(1, len(lines)+1):
             space = "   "
             if i < 10:
                 space += " "
             print(i, end=space)
             line = lines[i - 1]
+            line = line.replace("1", "ᴥ")
+            line = line.replace("0", " ")
 
-            lineStr = "  ".join([str(el) for el in line]) # Python oblige le contenu de la liste dans join() à être de type string.
-            lineStr = lineStr.replace("1", "▢")
-            lineStr = lineStr.replace("0", " ")
-
-            # Il y a en réalité un moyen beaucoup plus compact de faire ce que je fais ici, mais pour la lisibilité du code, restons là-dessus
-            if i != 6:
-                print(lineStr)
-            else:
-                print(lineStr, end="      ")
-                print(f"|| SCORE : {self.score} ||")
+            print(line, end="")
 
     def row_states(self):
-        for i in range(len(board)):
-            l = board[i]
+        for i in range(len(self.grid)):
+            l = self.grid[i]
 
             if 1 not in l:
                 self.score += 8
 
     def row_clear(self, i):
-        for o in range(len(board)):
-            if board[i][o] == 2:
-                board[i][o] = 1
+        for o in range(len(self.grid)):
+            if self.grid[i][o] == 2:
+                self.grid[i][o] = 1
                 self.score += 2
 
     def col_state(self):
-        for i in range(len(board)):
-            l = board[i]
+        for i in range(len(self.grid)):
+            l = self.grid[i]
 
             if "1" not in l:
                 self.score += 8
 
     def col_clear(self, i):
 
-        for o in range(len(board)):
-            if board[o][i] == 2:
-                board[i][o] = 1
+        for o in range(len(self.grid)):
+            if self.grid[o][i] == 2:
+                self.grid[i][o] = 1
                 self.score += 2
 
     def fallBlocks(self):
@@ -345,9 +288,9 @@ class Game:
 
         for x in range(self.size):
             for y in range(1, self.size):
-                if board[x][y] == 2 and board[x][y - 1] == 1:
-                    board[x][y] == 1
-                    board[x][y - 1] == 2
+                if self.grid[x][y] == 2 and self.grid[x][y - 1] == 1:
+                    self.grid[x][y] == 1
+                    self.grid[x][y - 1] == 2
                     felt = True
 
         return felt
@@ -355,13 +298,13 @@ class Game:
     def print_blocs(self):
         blocs = []
 
-        match self.shape:
+        match self.grid:
             case "TRIANGLE":
                 blocs = gridTriangle
             case "CARRE":
-                blocs = gridLosange
+                blocs = gridSquare
             case "CERCLE":
-                blocs = gridCercle
+                blocs = gridCircle
             case "POLY":
                 blocs = gridTriangle
             case _:
@@ -381,6 +324,7 @@ class Game:
         print()
 
     def valid_position(self, bloc, i, j):
+        output = True
         if len(bloc) > len(self.grid) - i + 1:  # vérif si pas out of range en hauteur
             return False
         if len(bloc) > len(self.grid[0]) - j + 1:  # vérif pas out of range en longueur
@@ -388,8 +332,8 @@ class Game:
         for k in range(len(bloc)):
             for l in range(len(bloc)):
                 if bloc[k][l] == 1 and self.grid[i + k][j + l] != 1:
-                    return False
-        return True
+                    output = False
+        return output
 
     def emplace_bloc(self, bloc, i, j):
         L = len(bloc)
@@ -400,12 +344,7 @@ class Game:
                 self.grid[i + x][j + y] = bloc[x][y]
 
     def endGame(self):
-        print("")
-        printLine()
         print("SCORE : ", self.score)
-        printLine()
-
-        self.ended = True
 
 
 def printLine():
@@ -415,8 +354,7 @@ def printLine():
 
 
 def jumpPage():
-    """Efface la page, en faisant 32 fois un print("")"""
-    for _ in range(32):
+    for i in range(32):
         print("")
 
 
@@ -425,8 +363,6 @@ def printHomepage():
     printLine()
     print(" 1: Commencer à jouer")
     print(" 2: Paramétrer le jeu")
-    print("")
-    print(" 3: Afficher les règles")
     printLine()
 
 
@@ -439,9 +375,6 @@ def inputHomePage():
         if choice == "2":
             printConfiguration()
             inputConfiguration()
-        elif choice == "3":
-            printRules()
-            inputRules()
     match game.shape:
         case "TRIANGLE":
             game.makeTriangle()
@@ -449,20 +382,24 @@ def inputHomePage():
             game.makeLosange()
         case "CERCLE":
             game.makeCircle()
+    game.print_grid()
 
 
 def printRules():
     jumpPage()
     printLine()
-    print("     Tetrus, c'est quoi ?")
-    print("")
-    print("     Entrée: HOME")
     printLine()
+    print("")
+    print("     1: HomePage")
 
 
 def inputRules():
-    input()
-    printHomepage()
+    choice = ""
+    reponses_possibles = ["1"]
+
+    while choice not in reponses_possibles:
+        choice = input()
+        printHomepage()
 
 
 def printConfiguration():
@@ -476,7 +413,6 @@ def printConfiguration():
     print("         1 : Triangle")
     print("         2 : Losange")
     print("         3 : Cercle")
-    print("")
     print("     Choisir Règles du jeu :         ", alea)
     print("         4 : Blocs aléatoires")
     print("         5 : TOUS les blocs")
@@ -500,30 +436,26 @@ def inputConfiguration():
             match choice:
                 case "1":
                     game.shape = "TRIANGLE"
-                    printConfiguration()
                 case "2":
                     game.shape = "LOSANGE"
-                    printConfiguration()
                 case "3":
                     game.shape = "CERCLE"
-                    printConfiguration()
                 case "4":
                     game.randomBlock = True
-                    printConfiguration()
                 case "5":
                     game.randomBlock = False
-                    printConfiguration()
                 case "6":
                     printSizeChoice()
                     inputSizeChoice()
 
         printHomepage()
+        inputHomePage()
 
 
 def printSizeChoice():
     jumpPage()
     printLine()
-    print(f"     Choisir la taille du plateau de jeu entre {minSize} et {maxSize}")
+    print(f"     Choisir la taille du plateau de jeu entre {str(minSize)} et {str(maxSize)}")
     printLine()
 
 
@@ -533,11 +465,11 @@ def inputSizeChoice():
     while not okay:
         try:
             choice = input()
-            if choice == "" or choice == "\n":
+            if choice == "":
                 printConfiguration()
-                return None
+                break
 
-            choice = int(choice)
+            choice = int(input())
             if minSize <= choice <= maxSize:
                 game.size = choice
                 okay = True
@@ -545,8 +477,6 @@ def inputSizeChoice():
                 raise ValueError
         except ValueError:
             print("Veuillez écrire un nombre entre 21 et 26 inclus")
-    
-    printConfiguration()
 
 
 def printBlocksChoice():
@@ -616,7 +546,7 @@ def select_bloc():
     pass
 
 
-# associer select bloc à partie logique en parallèle à printblocs
+# associer select bloc à partie logique en parralèle à printblocs
 
 def replaceBlocs(list):
     for i in range(len(list)):
@@ -631,19 +561,10 @@ def replaceBlocs(list):
 
 
 if __name__ == "__main__":
-
-    minSize = 21
+    board = open("board.txt", "a")
     maxSize = 26
+    minSize = 21
 
     printHomepage()
     game = Game()
     inputHomePage()
-
-    # Une fois que le joueur lance la partie...
-    game.setup()
-    jumpPage()
-    game.print_grid()
-
-    while not game.ended:
-        game.tick()
-
