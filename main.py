@@ -150,9 +150,9 @@ gridCercle = [cu, cG, cll, cBottle, cLine, cL, cCircle, cSquare, cRectangle, cU]
 gridTriangle = [trLine, trCross, trLineSmall, trS, trDiagonal, trDiagonalreversed, trSReversed]
 gridLosange = [lSquare, ll, lx, lt, lline, lStairs, lT, lTriangle]
 
-gridCercle.append(gridCommon)
-gridTriangle.append(gridCommon)
-gridLosange.append(gridCommon)
+gridCercle += gridCommon
+gridTriangle += gridCommon
+gridLosange += gridCommon
 
 class Game:
     def __init__(self, size=21):
@@ -162,7 +162,7 @@ class Game:
         self.error = 3  # max 3 erreurs successives
         self.shape = "TRIANGLE"  # forme du plateau.
         self.path = "" # Le fichier dans lequel on écrit nos plateaux. Dépend de self.shape au lancement du jeu.
-        self.randomBlock = True
+        self.randomBlock = False
         self.blocks = [] # Le jeu de blocs de cette partie
 
         self.tickCount = 0 # Combien de tours sont passés ? Cela sert pour la fonction read_grid()
@@ -191,6 +191,8 @@ class Game:
             self.print_HUD(self.blocks)
 
         self.tickCount += 1
+        exit(0)
+        input()
 
     def save_grid(self):
         with open(self.path, "w") as file:
@@ -264,22 +266,37 @@ class Game:
 
             self.grid.append(ligne)
 
-    def print_HUD(self, available_blocks):
+    def print_HUD(self, blocks):
+        print("")
+        print("Choisissez un bloc parmi les suivants.")
+
         # On donne à chaque bloc un terrain (un "plot") de la taille de celui qui a besoin du plus d'espace.
-        plotSize = max([len(liste) for liste in available_blocks]) # Les listes par compréhension sont parfaites pour faire des opérations sur chaque élément d'une liste
-        if type(plotSize) == list:
-            plotSize = len(plotSize)
+        plotSize = max([len(liste) for liste in blocks]) # Les listes par compréhension sont parfaites pour faire des opérations sur chaque élément d'une liste
         
-        separator = (("   " * plotSize) + "═ ")
+        separator = (("   " * plotSize) + "╦ ")
 
         print("╔ ",end="")
         print(
-            separator.join([str(n) + "." for n in range(1, len(available_blocks) + 1)]),
+            separator.join(["abcdefghijklmnopqrstuwxyz"[n] + "." for n in range(len(blocks))]),
             end = ("   "*plotSize + "╗\n")
         )
 
-        for block in available_blocks:
-            pass
+        for x in range(plotSize):
+            totalLigne = []
+            for block in blocks:
+                try:
+                    blockStr = [str(el) for el in block[x]]
+                except IndexError:
+                    blockStr = plotSize * ["0"]
+                while len(blockStr) < plotSize:
+                    blockStr += ["0"]
+                final = "  ".join(blockStr).replace("0", " ").replace("1", "□")
+                
+                totalLigne.append(final)
+            
+            print("║   " + "  ║   ".join(totalLigne) + "  ║")
+        print("╚═══" + "╩═══".join([("═══"*plotSize)]*len(blocks)) + "╝")
+
 
     def print_grid(self):
         
