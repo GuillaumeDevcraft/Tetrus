@@ -154,6 +154,9 @@ gridCercle += gridCommon
 gridTriangle += gridCommon
 gridLosange += gridCommon
 
+# Variable purement utilitaire, pour éviter de se répéter
+alphabet = "abcdefghijklmnopqrstuwxyz"
+
 class Game:
     def __init__(self, size=21):
         self.size = size
@@ -162,7 +165,7 @@ class Game:
         self.error = 3  # max 3 erreurs successives
         self.shape = "TRIANGLE"  # forme du plateau.
         self.path = "" # Le fichier dans lequel on écrit nos plateaux. Dépend de self.shape au lancement du jeu.
-        self.randomBlock = False
+        self.randomBlock = True
         self.blocks = [] # Le jeu de blocs de cette partie
 
         self.tickCount = 0 # Combien de tours sont passés ? Cela sert pour la fonction read_grid()
@@ -182,17 +185,71 @@ class Game:
                 self.blocks = deepcopy(gridCommon) # Ce cas ne devrait jamais se produire.
 
     def tick(self):
-        self.print_grid()
+        while True:
+            self.print_grid()
 
-        if self.randomBlock:
-            rand.shuffle(self.blocks)
-            self.print_HUD(self.blocks[:3])
-        else:
-            self.print_HUD(self.blocks)
+            if self.randomBlock:
+                rand.shuffle(self.blocks)
+                blocks_suggested = self.blocks[:3]
+                self.print_HUD(blocks_suggested)
+            else:
+                blocks_suggested = self.blocks
+                self.print_HUD(blocks_suggested)
+
+            print("")
+
+            wanted_block = input().lower()
+
+            # Le choix du bloc
+            while True:
+                if 0 < len(wanted_block) == 1:
+                    if wanted_block[0] in alphabet:
+                        try:
+                            chosen_block_arr = blocks_suggested[alphabet.index(wanted_block[0])]
+                            break
+                        except IndexError:
+                            pass
+                        
+                print("Votre réponse n'est pas valide. Veuillez choisir entre : " + ", ".join(alphabet[:len(blocks_suggested)]))
+                wanted_block = input().lower()
+
+            print("")
+            print("Bien. Maintenant, choisissez une rotation de votre bloc (0, 90, 180, -90) : ")
+            for i in range(len(chosen_block_arr)):
+                print("  ".join(["◼" if n == 1 else " " for n in chosen_block_arr[i]]))
+
+
+            # Le choix de la rotation
+            while True:
+                try:
+                    rotation = int(input())
+                    if rotation % 90 == 0:
+                        chosen_block_arr = rotate_matrix(chosen_block_arr, rotation)
+                        break
+                except ValueError:
+                    pass
+                print("Veuillez entrer une rotation valide (0, 90, 180, -90) : ")
+
+            print("")
+            for i in range(len(chosen_block_arr)):
+                print("  ".join(["◼" if n == 1 else " " for n in chosen_block_arr[i]]))
+            print("Parfait ! Écrivez pour finir la position à laquelle vous voulez placer votre bloc (lettre de ligne;numéro de colonne) : ")
+
+            # Le choix des coordonnées
+            while True:
+                try:
+                    coords = input().split(";")
+                    if len(coords) == 2:
+                        if (coords[0].lower() in alphabet[:len(self.size)]) and (int(coords[1]) in range(1, self.size + 1)):
+                            x, y = coords[0], coords[1]
+                            break
+                except ValueError:
+                    pass
+                print("Veuillez entrer des coordonnées valides séparées d'un point virgule (lettre de ligne;numéro de colonne) : ")
+
+            
 
         self.tickCount += 1
-        exit(0)
-        input()
 
     def save_grid(self):
         with open(self.path, "w") as file:
@@ -211,21 +268,8 @@ class Game:
                 for y in range(self.size):
                     self.grid[x][y] = int(l[y])
 
+
     def makeTriangle(self):
-        """
-        renderSize = (self.size//2 + 1)
-        par = renderSize % 2
-
-        for y in range(renderSize):
-            ligne = []
-            for x in range(renderSize * 2 + par):
-                if x < renderSize - y - 1 + par or x > renderSize + y:
-                    ligne.append(0)
-                else:
-                    ligne.append(1)
-
-            self.grid.append(ligne)
-        """
         self.makeLosange()
         for _ in range(self.size // 2):
             del self.grid[self.size // 2 + self.size % 2]
@@ -266,9 +310,10 @@ class Game:
 
             self.grid.append(ligne)
 
+
     def print_HUD(self, blocks):
         print("")
-        print("Choisissez un bloc parmi les suivants.")
+        print("Choisissez un bloc parmi les suivants à l'aide de leur lettre.")
 
         # On donne à chaque bloc un terrain (un "plot") de la taille de celui qui a besoin du plus d'espace.
         plotSize = max([len(liste) for liste in blocks]) # Les listes par compréhension sont parfaites pour faire des opérations sur chaque élément d'une liste
@@ -277,7 +322,7 @@ class Game:
 
         print("╔ ",end="")
         print(
-            separator.join(["abcdefghijklmnopqrstuwxyz"[n] + "." for n in range(len(blocks))]),
+            separator.join([alphabet[n] + "." for n in range(len(blocks))]),
             end = ("   "*plotSize + "╗\n")
         )
 
@@ -290,13 +335,12 @@ class Game:
                     blockStr = plotSize * ["0"]
                 while len(blockStr) < plotSize:
                     blockStr += ["0"]
-                final = "  ".join(blockStr).replace("0", " ").replace("1", "□")
+                final = "  ".join(blockStr).replace("0", " ").replace("1", "◼")
                 
                 totalLigne.append(final)
             
             print("║   " + "  ║   ".join(totalLigne) + "  ║")
         print("╚═══" + "╩═══".join([("═══"*plotSize)]*len(blocks)) + "╝")
-
 
     def print_grid(self):
         
@@ -313,10 +357,8 @@ class Game:
 
         lines = self.grid
         for i in range(1, len(self.grid) + 1):
-            space = "   "
-            if i < 10:
-                space += " "
-            print(i, end=space)
+            space = "    "
+            print(alphabet[i-1], end=space)
             line = lines[i - 1]
 
             lineStr = "  ".join([str(el) for el in line]) # Python oblige le contenu de la liste dans join() à être de type string.
@@ -329,6 +371,7 @@ class Game:
             else:
                 print(lineStr, end="      ")
                 print(f"|| SCORE : {self.score} ||")
+
 
     def row_states(self):
         for i in range(len(board)):
@@ -629,9 +672,29 @@ def print_blocs(shapelist):
                 print(temp1[j][k][l], end="")
 
 
-def select_bloc():
-    pass
-
+def rotate_matrix(array, rot):
+    """La matrice doit être rectangulaire, sinon une exception va être levée
+    """
+    match rot % 360:
+        case 0:
+            return array
+        case 90:
+            result = []
+            for y in range(len(array[0])):
+                new_line = []
+                for x in range(len(array) - 1, -1, -1):
+                    new_line.append(array[x][y])
+                result.append(new_line)
+            return result
+        case 180:
+            result = []
+            for ligne in array:
+                ligne.reverse()
+                result.insert(0, ligne)
+            return result
+        case 270:
+            return rotate_matrix(rotate_matrix(array, 90), 180)
+        
 
 # associer select bloc à partie logique en parallèle à printblocs
 
