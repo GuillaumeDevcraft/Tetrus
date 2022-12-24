@@ -162,10 +162,10 @@ class Game:
         self.size = size
         self.grid = []
         self.score = 0
-        self.error = 3  # max 3 erreurs successives
-        self.shape = "TRIANGLE"  # forme du plateau.
+        self.trials = 3  # max 3 erreurs successives
+        self.shape = "CERCLE"  # forme du plateau.
         self.path = "" # Le fichier dans lequel on écrit nos plateaux. Dépend de self.shape au lancement du jeu.
-        self.randomBlock = True
+        self.randomBlock = False
         self.blocks = [] # Le jeu de blocs de cette partie
 
         self.tickCount = 0 # Combien de tours sont passés ? Cela sert pour la fonction read_grid()
@@ -185,63 +185,45 @@ class Game:
                 self.blocks = deepcopy(gridCommon) # Ce cas ne devrait jamais se produire.
 
     def tick(self):
+        if self.randomBlock:
+            rand.shuffle(self.blocks)
+            blocks_suggested = self.blocks[:3]
+        else:
+            blocks_suggested = self.blocks
+            
         while True:
             self.print_grid()
-
-            if self.randomBlock:
-                rand.shuffle(self.blocks)
-                blocks_suggested = self.blocks[:3]
-                self.print_HUD(blocks_suggested)
-            else:
-                blocks_suggested = self.blocks
-                self.print_HUD(blocks_suggested)
-
             print("")
+            self.print_HUD(blocks_suggested)
 
             wanted_block = input().lower()
 
             # Le choix du bloc
-            while True:
-                if 0 < len(wanted_block) == 1:
-                    if wanted_block[0] in alphabet:
-                        try:
-                            chosen_block_arr = blocks_suggested[alphabet.index(wanted_block[0])]
-                            break
-                        except IndexError:
-                            pass
-                        
-                print("Votre réponse n'est pas valide. Veuillez choisir entre : " + ", ".join(alphabet[:len(blocks_suggested)]))
-                wanted_block = input().lower()
+            chosen_block_arr = self.select_block(blocks_suggested, wanted_block)
+
+            accept = ["oui", "o", "yes", "y"]
+            print("")
+            print_block(chosen_block_arr)
+            rep = input("Bien. Souhaitez-vous effectuer une rotation sur ce bloc ('oui' pour accepter, autre chose pour refuser) ? ").lower()
+            while rep in accept:
+                # Le choix de la rotation
+                chosen_block_arr = self.rotate_block(chosen_block_arr)
+                print_block(chosen_block_arr)
+                print("")
+                if input("Êtes-vous satisafait de cette rotation ? ").lower() in accept:
+                    break
+            
 
             print("")
-            print("Bien. Maintenant, choisissez une rotation de votre bloc (0, 90, 180, -90) : ")
-            for i in range(len(chosen_block_arr)):
-                print("  ".join(["◼" if n == 1 else " " for n in chosen_block_arr[i]]))
-
-
-            # Le choix de la rotation
-            while True:
-                try:
-                    rotation = int(input())
-                    if rotation % 90 == 0:
-                        chosen_block_arr = rotate_matrix(chosen_block_arr, rotation)
-                        break
-                except ValueError:
-                    pass
-                print("Veuillez entrer une rotation valide (0, 90, 180, -90) : ")
-
-            print("")
-            for i in range(len(chosen_block_arr)):
-                print("  ".join(["◼" if n == 1 else " " for n in chosen_block_arr[i]]))
             print("Parfait ! Écrivez pour finir la position à laquelle vous voulez placer votre bloc (lettre de ligne;numéro de colonne) : ")
 
             # Le choix des coordonnées
             while True:
                 try:
-                    coords = input().split(";")
+                    coords = input().strip("()").split(";")
                     if len(coords) == 2:
-                        if (coords[0].lower() in alphabet[:len(self.size)]) and (int(coords[1]) in range(1, self.size + 1)):
-                            x, y = coords[0], coords[1]
+                        if (coords[0].lower() in alphabet[:self.size]) and (int(coords[1]) in range(1, self.size + 1)):
+                            x, y = int(alphabet.index(coords[0])), int(coords[1])
                             break
                 except ValueError:
                     pass
@@ -249,11 +231,55 @@ class Game:
 
             chosen_block_arr = trim_matrix(chosen_block_arr)
             #is valid ==> break
-            if (self.valid_position(chosen_block_arr, alphabet.index(x), y)):
-                pass
-            
+            if (self.valid_position(chosen_block_arr, x, y - 1)): # y - 1 car les colonnes sont numérotées à partir de 1, pas 0
+                self.place_block(chosen_block_arr, x, y - 1)
+                self.trials = 3
+                break
+            else:
+                self.trials -= 1
+                if self.trials == 0:
+                    print("")
+                    self.loseGame()
+                    return
+                printLine("/!\\")
+                # "s"*int(self.trials != 1) signifie simplement que s'il reste plusieurs essais au joueur, on affiche un s (int(True) == 0)
+                print(f"AÏE ! Votre coup est illégal, il vous reste maintenant {self.trials} essai" + "s"*int(self.trials != 1) + " sur 3.")
+                printLine("/!\\")
+
+
 
         self.tickCount += 1
+
+    def select_block(self, options, wanted_block):
+        while True:
+            if 0 < len(wanted_block) == 1:
+                if wanted_block[0] in alphabet:
+                    try:
+                        chosen_block_arr = options[alphabet.index(wanted_block[0])]
+                        break
+                    except IndexError:
+                        pass
+                    
+            print("Votre réponse n'est pas valide. Veuillez choisir entre : " + ", ".join(alphabet[:len(options)]))
+            wanted_block = input().lower()
+        return chosen_block_arr
+
+    def rotate_block(self, block):
+        print("Veuillez entrer une rotation (0, 90, 180, -90) : ")
+        while True:
+            try:
+                rotation = int(input())
+                if rotation % 90 == 0:
+                    block = rotate_matrix(block, rotation)
+                    break
+            except ValueError:
+                pass
+            print("Veuillez entrer une rotation valide (0, 90, 180, -90) : ")
+        
+        print("")
+        print(f"Rotation de {rotation}°...")
+        return block
+
 
     def save_grid(self):
         with open(self.path, "w") as file:
@@ -324,27 +350,34 @@ class Game:
         
         separator = (("   " * plotSize) + "╦ ")
 
-        print("╔ ",end="")
-        print(
-            separator.join([alphabet[n] + "." for n in range(len(blocks))]),
-            end = ("   "*plotSize + "╗\n")
-        )
+        counter = 0
+        while True:
+            blocksInLine = blocks[counter:10 + counter]
+            print("╔ ",end="")
+            print(
+                separator.join([alphabet[n + counter] + "." for n in range(len(blocksInLine))]),
+                end = ("   "*plotSize + "╗\n")
+            )
 
-        for x in range(plotSize):
-            totalLigne = []
-            for block in blocks:
-                try:
-                    blockStr = [str(el) for el in block[x]]
-                except IndexError:
-                    blockStr = plotSize * ["0"]
-                while len(blockStr) < plotSize:
-                    blockStr += ["0"]
-                final = "  ".join(blockStr).replace("0", " ").replace("1", "◼")
-                
-                totalLigne.append(final)
-            
-            print("║   " + "  ║   ".join(totalLigne) + "  ║")
-        print("╚═══" + "╩═══".join([("═══"*plotSize)]*len(blocks)) + "╝")
+            for x in range(plotSize):
+                totalLigne = []
+                for block in blocksInLine:
+                    try:
+                        blockStr = [str(el) for el in block[x]]
+                    except IndexError:
+                        blockStr = plotSize * ["0"]
+                    while len(blockStr) < plotSize:
+                        blockStr += ["0"]
+                    final = "  ".join(blockStr).replace("0", " ").replace("1", "◼")
+
+                    totalLigne.append(final)
+
+                print("║   " + "  ║   ".join(totalLigne) + "  ║")
+            print("╚═══" + "╩═══".join([("═══"*plotSize)]*len(blocksInLine)) + "╝")
+
+            counter += 10
+            if len(blocks) < counter:
+                break
 
     def print_grid(self):
         
@@ -366,6 +399,7 @@ class Game:
             line = lines[i - 1]
 
             lineStr = "  ".join([str(el) for el in line]) # Python oblige le contenu de la liste dans join() à être de type string.
+            lineStr = lineStr.replace("2", "◼")
             lineStr = lineStr.replace("1", "▢")
             lineStr = lineStr.replace("0", " ")
 
@@ -377,34 +411,36 @@ class Game:
                 print(f"<< SCORE : {self.score} >>")
 
 
-    def row_states(self):
-        for i in range(len(board)):
-            l = board[i]
+    def row_state(self):
+        res = []
+        for i in range(len(self.grid)):
+            l = self.grid[i]
 
             if 1 not in l:
-                self.score += 8
+                res.append(i)
+        return res
 
     def row_clear(self, i):
-        for o in range(len(board)):
-            if board[i][o] == 2:
-                board[i][o] = 1
-                self.score += 2
+        for o in range(len(self.grid)):
+            if self.grid[i][o] == 2:
+                self.grid[i][o] = 1
 
     def col_state(self):
-        for i in range(len(board)):
-            l = board[i]
+        res = []
+        for i in range(len(self.grid)):
+            l = self.grid[i]
 
-            if "1" not in l:
-                self.score += 8
+            if 1 not in l:
+                res.append(i)
+        return res
 
-    def col_clear(self, i):
-
-        for o in range(len(board)):
-            if board[o][i] == 2:
-                board[i][o] = 1
+    def col_clear(self, j):
+        for o in range(len(self.grid)):
+            if self.grid[o][j] == 2:
+                self.grid[j][o] = 1
                 self.score += 2
 
-    def fallBlocks(self):
+    def blocks_fall(self):
         felt = False
 
         for x in range(self.size):
@@ -416,34 +452,50 @@ class Game:
 
         return felt
 
-    ################################ FINISH ME #############################
     def valid_position(self, block, x, y):
+        """Vérifie si <block> peut entrer dans la grille de jeu si on le place aux coordonnées <x>,<y>
+        """
         for i in range(len(block)):
             for j in range(len(block[i])):
-                if block[j][i] == 1:
-                    if self.grid[x][y]
+                try:
+                    if x - j < 0: # S'il n'y a même pas la place (verticalement) pour la pièce, alors la position donnée est forcément fausse
+                        return False
+                    if block[len(block) - 1 - j][i] == 1:
+                        if self.grid[x - j][y + i] != 1:
+                            return False
+                    
+                except IndexError:
+                    continue
+        return True
 
-    def emplace_bloc(self, bloc, i, j):
-        L = len(bloc)
-        l = len(bloc[0])
+    def place_block(self, block, x, y):
+        for i in range(len(block)):
+            for j in range(len(block[i])):
+                try:
+                    self.grid[x - j][y + i] += block[len(block) - 1 - j][i]
+                except IndexError:
+                    continue
 
-        for x in range(L):
-            for y in range(l):
-                self.grid[i + x][j + y] = bloc[x][y]
-
-    def endGame(self):
-        print("")
+    def loseGame(self):
         printLine()
-        print("SCORE : ", self.score)
+
+        print("OOF ! Vous avez perdu.", end=" "*15)
+        print(f"// SCORE : {self.score} //")
+        printLine()
+        self.ended = True
+    
+    def endGame(self):
+        printLine()
+        print("SCORE :", self.score)
         printLine()
 
         self.ended = True
 
 
-def printLine():
+def printLine(pattern="UW"):
     for i in range(64):
-        print("UW", end="")
-    print("UW")
+        print(pattern, end="")
+    print(pattern)
 
 
 def jumpPage():
@@ -678,16 +730,9 @@ def rotate_matrix(matrix, rot):
 
 # associer select bloc à partie logique en parallèle à printblocs
 
-def replaceBlocs(list):
-    for i in range(len(list)):
-        temp1 = []
-        for j in range(len(list[i])):
-            if list[i][j] == 1:
-                temp2 = "■"
-            else:
-                temp2 = " "
-            temp1.append(temp2)
-    return temp1
+def print_block(block):
+    for i in range(len(block)):
+        print("  ".join(["◼" if n == 1 else " " for n in block[i]]))
 
 
 if __name__ == "__main__":
@@ -702,7 +747,6 @@ if __name__ == "__main__":
     # Une fois que le joueur lance la partie...
     game.setup()
     jumpPage()
-    game.print_grid()
 
     while not game.ended:
         game.tick()
