@@ -247,6 +247,10 @@ class Game:
                     pass
                 print("Veuillez entrer des coordonnées valides séparées d'un point virgule (lettre de ligne;numéro de colonne) : ")
 
+            chosen_block_arr = trim_matrix(chosen_block_arr)
+            #is valid ==> break
+            if (self.valid_position(chosen_block_arr, alphabet.index(x), y)):
+                pass
             
 
         self.tickCount += 1
@@ -370,7 +374,7 @@ class Game:
                 print(lineStr)
             else:
                 print(lineStr, end="      ")
-                print(f"|| SCORE : {self.score} ||")
+                print(f"<< SCORE : {self.score} >>")
 
 
     def row_states(self):
@@ -412,44 +416,12 @@ class Game:
 
         return felt
 
-    def print_blocs(self):
-        blocs = []
-
-        match self.shape:
-            case "TRIANGLE":
-                blocs = gridTriangle
-            case "CARRE":
-                blocs = gridLosange
-            case "CERCLE":
-                blocs = gridCercle
-            case "POLY":
-                blocs = gridTriangle
-            case _:
-                return
-
-        for i in range(len(blocs)):
-            b = blocs[i]
-            print("Bloc" + i + "   :")
-
-            for l in b:
-                for c in l:
-                    print(c + "  ")
-                print()
-
-            print("-------------------")
-
-        print()
-
-    def valid_position(self, bloc, i, j):
-        if len(bloc) > len(self.grid) - i + 1:  # vérif si pas out of range en hauteur
-            return False
-        if len(bloc) > len(self.grid[0]) - j + 1:  # vérif pas out of range en longueur
-            return False
-        for k in range(len(bloc)):
-            for l in range(len(bloc)):
-                if bloc[k][l] == 1 and self.grid[i + k][j + l] != 1:
-                    return False
-        return True
+    ################################ FINISH ME #############################
+    def valid_position(self, block, x, y):
+        for i in range(len(block)):
+            for j in range(len(block[i])):
+                if block[j][i] == 1:
+                    if self.grid[x][y]
 
     def emplace_bloc(self, bloc, i, j):
         L = len(bloc)
@@ -609,13 +581,58 @@ def inputSizeChoice():
     printConfiguration()
 
 
-def printBlocksChoice():
-    blocksToDisplay = []
+def trim_matrix(matrix, forbidden = 0):
+    """Crée une nouvelle matrice sans l'excédent de <forbidden> de <matrix>.
+    Par exemple, voici matrice1 :
+    0001110100
+    0100120300
+    0000010000
+    0000000000
 
-    jumpPage()
-    printLine()
-    printLine()
-    print("")
+    et voilà trim_matrix(matrice1, 0) :
+    0011101
+    1001203
+    0000100
+    """
+
+    result = []
+
+    # Étape 1. Récupérer les coordonnées X et Y des valeurs non illégales (càd, pas égales à <forbidden>) dans leur tableau respectif
+    legal_coordX = []
+    legal_coordY = []
+    for x in range(len(matrix)):
+        for y in range(len(matrix[x])):
+            if matrix[x][y] != forbidden:
+                legal_coordX.append(x)
+                legal_coordY.append(y)
+    
+    # Étape 2. Déterminer le rectangle à copier au sein de <matrix>
+    coordCorner1 = (min(legal_coordX), min(legal_coordY))
+    coordCorner2 = (max(legal_coordX), max(legal_coordY))
+    size = (coordCorner2[0] - coordCorner1[0] + 1, coordCorner2[1] - coordCorner1[1] + 1)
+
+    # Étape 3. Copier le rectangle mentionné ci-dessus dans une nouvelle matrice
+    for x in range(coordCorner1[0], coordCorner1[0] + size[0]):
+        ligne = []
+        for y in range(coordCorner1[1], coordCorner1[1] + size[1]):
+            try: # Au cas où <matrix> n'est pas rectangulaire, on met quelque chose pour remplacer
+                ligne.append(matrix[x][y])
+            except IndexError:
+                ligne.append(0) # Valeur arbitraire de remplacement, choisie pour les besoins du Tetrus
+        result.append(ligne)
+    
+    return result
+
+assert trim_matrix([
+        [0,0,0,1,1,1,0,1,0,0],
+        [0,0,0,0,1,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,0,0],
+        [0,0,0,0,0,0,0,0,1,0]
+    ]) == [[1,1,1,0,1,0],
+           [0,1,0,0,0,0],
+           [0,0,0,0,0,0],
+           [0,0,0,0,0,1]
+           ]
 
 
 def isInPoly(points, x, y):
@@ -635,65 +652,28 @@ def isInPoly(points, x, y):
     return not count % 2 == 0
 
 
-trianglePoly = [[0, 0], [9, 9], [0, 9], [9, 0]]
-
-
-def poly(points):
-    board = open("board.txt", "a")
-
-    for y in range(game.size):
-        for x in range(game.size):
-            if isInPoly(points, x, y):
-                board.write("1  ")
-            else:
-                board.write("0  ")
-        board.write("\n")
-    board.close()
-
-
-def print_blocs(shapelist):
-    for i in range(1, len(gridCommon) + 1):
-        temp2 = []
-        temp2.append(replaceBlocs(gridCommon[i]))
-    for j in range(len(temp2)):
-        print(j + 1)
-        for k in range(len(temp2[j])):
-            print
-            for l in range(len(temp2[j][k])):
-                print(temp2[j][k][l], end="")
-    for i in range(1, len(shapelist) + 1):
-        temp1 = []
-        temp1.append(replaceBlocs(shapelist[i]))
-    for j in range(len(temp1)):
-        print(j + 1 + len(gridCommon))
-        for k in range(len(temp1[j])):
-            print
-            for l in range(len(temp1[j][k])):
-                print(temp1[j][k][l], end="")
-
-
-def rotate_matrix(array, rot):
+def rotate_matrix(matrix, rot):
     """La matrice doit être rectangulaire, sinon une exception va être levée
     """
     match rot % 360:
         case 0:
-            return array
+            return matrix
         case 90:
             result = []
-            for y in range(len(array[0])):
+            for y in range(len(matrix[0])):
                 new_line = []
-                for x in range(len(array) - 1, -1, -1):
-                    new_line.append(array[x][y])
+                for x in range(len(matrix) - 1, -1, -1):
+                    new_line.append(matrix[x][y])
                 result.append(new_line)
             return result
         case 180:
             result = []
-            for ligne in array:
+            for ligne in matrix:
                 ligne.reverse()
                 result.insert(0, ligne)
             return result
         case 270:
-            return rotate_matrix(rotate_matrix(array, 90), 180)
+            return rotate_matrix(rotate_matrix(matrix, 90), 180)
         
 
 # associer select bloc à partie logique en parallèle à printblocs
