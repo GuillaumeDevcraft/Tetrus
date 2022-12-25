@@ -592,6 +592,13 @@ def jumpPage():
 
 def printHomepage():
     jumpPage()
+    print("       _____    _                   ")
+    print("      |_   _|  | |                  ")
+    print("        | | ___| |_ _ __ _   _ ___  ")
+    print("        | |/ _ \ __| '__| | | / __| ")
+    print("        | |  __/ |_| |  | |_| \__ \ ")
+    print("        \_/\___|\__|_|   \__,_|___/ ")
+    print("\n\n\n\n")
     printLine()
     print(" 1: Commencer à jouer")
     print(" 2: Paramétrer le jeu")
