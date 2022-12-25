@@ -2,7 +2,9 @@
 
 from math import *
 from copy import deepcopy
+from datetime import datetime as time
 import random as rand
+import os
 
 # formes t=tous c=cercle l=losange
 tl = [[0, 0, 0, 0],
@@ -161,11 +163,19 @@ class Game:
     def __init__(self, size=21):
         self.size = size
         self.grid = []
+        # snapshots[0] = options de la partie (nom, forme du plateau, taille du plateau, score)
+        # le reste = les grilles
+        self.snapshots = [tuple()]
+
         self.score = 0
         self.trials = 3  # max 3 erreurs successives
-        self.shape = "CERCLE"  # forme du plateau.
+
+        self.shape = "TRIANGLE"  # forme du plateau.
+        self.randomBlock = True
+
         self.path = "" # Le fichier dans lequel on écrit nos plateaux. Dépend de self.shape au lancement du jeu.
-        self.randomBlock = False
+        self.gamerTag = "Inconnu"
+        
         self.blocks = [] # Le jeu de blocs de cette partie
 
         self.tickCount = 0 # Combien de tours sont passés ? Cela sert pour la fonction read_grid()
@@ -173,7 +183,13 @@ class Game:
         self.ended = False
 
     def setup(self):
-        self.path = self.shape.lower() + ".txt"
+
+        if not (21 <= self.size <= 26):
+            self.size = 21
+        
+        if self.score < 0:
+            self.score = 0
+
         match self.shape:
             case "TRIANGLE":
                 self.blocks = deepcopy(gridTriangle)
@@ -182,7 +198,11 @@ class Game:
             case "CERCLE":
                 self.blocks = deepcopy(gridCercle)
             case _:
-                self.blocks = deepcopy(gridCommon) # Ce cas ne devrait jamais se produire.
+                self.shape = "TRIANGLE"
+                self.blocks = deepcopy(gridTriangle)
+        
+        if self.path == "":
+            self.path = self.shape.lower() + "_" + time.now().strftime("%d-%m-%Y@%H-%M-%S") + ".txt"
 
     def tick(self):
         if self.randomBlock:
@@ -200,11 +220,14 @@ class Game:
 
             # Le choix du bloc
             chosen_block_arr = self.select_block(blocks_suggested, wanted_block)
+            if chosen_block_arr is None:
+                self.end_game()
+                return None
 
             accept = ["oui", "o", "yes", "y"]
             print("")
             print_block(chosen_block_arr)
-            rep = input("Bien. Souhaitez-vous effectuer une rotation sur ce bloc ('oui' pour accepter, autre chose pour refuser) ? ").lower()
+            rep = input("Bien. Souhaitez-vous effectuer une rotation sur ce bloc ? ('oui' pour accepter, autre chose pour refuser) ").lower()
             while rep in accept:
                 # Le choix de la rotation
                 chosen_block_arr = self.rotate_block(chosen_block_arr)
@@ -229,6 +252,7 @@ class Game:
                     pass
                 print("Veuillez entrer des coordonnées valides séparées d'un point virgule (lettre de ligne;numéro de colonne) : ")
 
+            print("")
             chosen_block_arr = trim_matrix(chosen_block_arr)
             #is valid ==> break
             if (self.valid_position(chosen_block_arr, x, y - 1)): # y - 1 car les colonnes sont numérotées à partir de 1, pas 0
@@ -239,15 +263,38 @@ class Game:
                 self.trials -= 1
                 if self.trials == 0:
                     print("")
-                    self.loseGame()
+                    self.lose_game()
                     return
                 printLine("/!\\")
                 # "s"*int(self.trials != 1) signifie simplement que s'il reste plusieurs essais au joueur, on affiche un s (int(True) == 0)
-                print(f"AÏE ! Votre coup est illégal, il vous reste maintenant {self.trials} essai" + "s"*int(self.trials != 1) + " sur 3.")
+                print(f"AÏE ! Votre coup est illégal, il vous reste {self.trials} essai" + "s"*int(self.trials != 1) + " sur 3.")
                 printLine("/!\\")
 
+        # Récompenses !
+        full_rows = self.row_state()
+        full_cols = self.col_state()
+        while full_rows != [] or full_cols != []:
+            for row_index in full_rows:
+                self.score += 2 * self.grid[row_index].count(2)
+            for col_index in full_cols:
+                occurrences = 0
+                for i in range(len(self.grid)):
+                    if self.grid[i][col_index] == 2:
+                        occurrences += 1
 
+                self.score += 2 * occurrences
 
+            for row_index in full_rows:
+                self.row_clear(row_index)
+            if full_cols != []:
+                for col_index in full_cols:
+                    self.col_clear(col_index)
+                self.blocks_fall()
+
+            full_rows = self.row_state()
+            full_cols = self.col_state()
+
+        self.snapshots.append(deepcopy(self.grid))
         self.tickCount += 1
 
     def select_block(self, options, wanted_block):
@@ -259,6 +306,8 @@ class Game:
                         break
                     except IndexError:
                         pass
+                elif wanted_block == "0":
+                    return None
                     
             print("Votre réponse n'est pas valide. Veuillez choisir entre : " + ", ".join(alphabet[:len(options)]))
             wanted_block = input().lower()
@@ -282,15 +331,27 @@ class Game:
 
 
     def save_grid(self):
-        with open(self.path, "w") as file:
-            for ligne in self.grid:
-                file.write(" ".join(ligne))
-                file.write("\n")
-            file.write("\n")
+        try:
+            if not os.path.exists("./games/"):
+                os.mkdir("./games")
+            with open("./games/" + self.path, "w") as file:
+                file.write("/!\\ NE PAS TOUCHER CE FICHIER ! /!\\\n")
+                file.write(str(self.snapshots[0]).strip("()").replace("'", "") + "\n\n")
+
+                counter = 1
+                for grid in self.snapshots[1:]:
+                    file.write(str(counter) + ".\n")
+                    for ligne in grid:
+                        file.write(" ".join([str(n) for n in ligne]))
+                        file.write("\n")
+                    file.write("\n\n")
+                    counter += 1
+        except IOError:
+            print("Oof ! Je n'ai pas réussi à sauvegarder votre partie...")
 
     def read_grid(self):
-        with open(self.path) as b:
-            lines = b.readlines()
+        with open(self.path) as file:
+            lines = file.readlines()
 
             for x in range(self.size):
                 l = lines[x].split(" ").pop(self.size - 1)
@@ -343,6 +404,7 @@ class Game:
 
     def print_HUD(self, blocks):
         print("")
+        print("0. ARRÊTER LA PARTIE")
         print("Choisissez un bloc parmi les suivants à l'aide de leur lettre.")
 
         # On donne à chaque bloc un terrain (un "plot") de la taille de celui qui a besoin du plus d'espace.
@@ -352,7 +414,7 @@ class Game:
 
         counter = 0
         while True:
-            blocksInLine = blocks[counter:10 + counter]
+            blocksInLine = blocks[counter:8 + counter]
             print("╔ ",end="")
             print(
                 separator.join([alphabet[n + counter] + "." for n in range(len(blocksInLine))]),
@@ -375,7 +437,7 @@ class Game:
                 print("║   " + "  ║   ".join(totalLigne) + "  ║")
             print("╚═══" + "╩═══".join([("═══"*plotSize)]*len(blocksInLine)) + "╝")
 
-            counter += 10
+            counter += 8
             if len(blocks) < counter:
                 break
 
@@ -416,50 +478,61 @@ class Game:
         for i in range(len(self.grid)):
             l = self.grid[i]
 
+            # Les lignes ne comptant qu'un bloc plaçable ne sont effaçables que par la colonne qui le traverse.
+            if l.count(0) == len(self.grid[0]) - 1:
+                continue
             if 1 not in l:
                 res.append(i)
         return res
 
     def row_clear(self, i):
-        for o in range(len(self.grid)):
-            if self.grid[i][o] == 2:
+        for o in range(self.size):
+            if self.grid[i][o] != 0:
                 self.grid[i][o] = 1
 
     def col_state(self):
         res = []
-        for i in range(len(self.grid)):
-            l = self.grid[i]
+        for i in range(self.size):
+            col_list = []
+            for j in range(len(self.grid)):
+                col_list.append(self.grid[j][i])
 
-            if 1 not in l:
+            # Les colonnes ne comptant qu'un bloc plaçable ne sont effaçables que par la ligne qui le traverse.
+            if col_list.count(0) == len(self.grid) - 1:
+                continue
+            if 1 not in col_list:
                 res.append(i)
         return res
 
     def col_clear(self, j):
         for o in range(len(self.grid)):
-            if self.grid[o][j] == 2:
-                self.grid[j][o] = 1
-                self.score += 2
+            if self.grid[o][j] != 0:
+                self.grid[o][j] = 1
 
     def blocks_fall(self):
-        felt = False
+        something_changed = False
 
-        for x in range(self.size):
-            for y in range(1, self.size):
-                if board[x][y] == 2 and board[x][y - 1] == 1:
-                    board[x][y] == 1
-                    board[x][y - 1] == 2
-                    felt = True
+        for x in range(len(self.grid) - 1, 0, -1):
+            for y in range(self.size):
+                if self.grid[x][y] == 1 and self.grid[x - 1][y] == 2:
+                    self.grid[x][y] = 2
+                    self.grid[x - 1][y] = 1
+                    something_changed = True
+        
+        if something_changed:
+            self.blocks_fall()
 
-        return felt
 
     def valid_position(self, block, x, y):
         """Vérifie si <block> peut entrer dans la grille de jeu si on le place aux coordonnées <x>,<y>
         """
-        for i in range(len(block)):
-            for j in range(len(block[i])):
+        for i in range(len(block[0])):
+            for j in range(len(block)):
                 try:
                     if x - j < 0: # S'il n'y a même pas la place (verticalement) pour la pièce, alors la position donnée est forcément fausse
                         return False
+                    if len(block) - 1 - j < 0:
+                        continue
                     if block[len(block) - 1 - j][i] == 1:
                         if self.grid[x - j][y + i] != 1:
                             return False
@@ -469,27 +542,40 @@ class Game:
         return True
 
     def place_block(self, block, x, y):
-        for i in range(len(block)):
-            for j in range(len(block[i])):
+        for i in range(len(block[0])):
+            for j in range(len(block)):
                 try:
                     self.grid[x - j][y + i] += block[len(block) - 1 - j][i]
                 except IndexError:
                     continue
 
-    def loseGame(self):
+    def lose_game(self):
         printLine()
 
         print("OOF ! Vous avez perdu.", end=" "*15)
         print(f"// SCORE : {self.score} //")
         printLine()
-        self.ended = True
+        self.set_ended(True)
     
-    def endGame(self):
+    def end_game(self):
         printLine()
         print("SCORE :", self.score)
         printLine()
 
-        self.ended = True
+        self.set_ended(True)
+    
+    def set_ended(self, bool):
+        self.ended = bool
+        if not bool: return None
+
+        print("\n")
+        rep = input("Sauvegarder la partie ? (\"o\" pour oui, autre chose pour non) ").strip().lower()
+        if rep not in ["o", "oui", "y", "yes", "1"]: return None
+
+        self.gamerTag = input("Saisissez votre nom : ").strip()
+        self.snapshots[0] = self.gamerTag, self.shape, self.size, self.score
+        self.save_grid()
+
 
 
 def printLine(pattern="UW"):
@@ -540,6 +626,23 @@ def printRules():
     printLine()
     print("     Tetrus, c'est quoi ?")
     print("")
+    print("     Le principe est simple. Vous placez les blocs mis à votre disposition sur la grille de jeu.")
+    print("")
+    print("     Votre objectif est que la partie dure le plus longtemps (et ainsi, que vous ayez le meilleur score).")
+    print("     En effet, quand une ligne est remplie, elle est supprimée de la grille et vous gagnez des points. De même")
+    print("     pour les colonnes, mais une suppression de colonne a aussi pour effet de faire tomber les cases remplies")
+    print("     n'ayant aucun support sous elles.")
+    print("")
+    print("     À chaque tour, vous disposez de trois essais pour entrer un placement de bloc valide. Si vous échouez trois fois de")
+    print("     manière consécutive, vous perdez.")
+    print("     Vous pouvez également arrêter une partie prématurément, en tapant \"0\" au lieu d'une lettre de bloc.")
+    print("")
+    print("     Vous avez à votre disposition différentes options que vous pouvez changer avant le début de la partie,")
+    print("     tel que la taille du plateau, sa forme, ou les blocs mis à votre disposition à chaque tour.")
+    print("")
+    print("     Enfin, vous avez également l'option à chaque fin de partie de sauvegarder votre partie pour la partager, ou y revenir.")
+    print("")
+    print("")
     print("     Entrée: HOME")
     printLine()
 
@@ -572,7 +675,6 @@ def printConfiguration():
 
 def inputConfiguration():
     choice = ""
-    stayPage = True
 
     reponses_possibles = ["1", "2", "3", "4", "5", "6", "7"]
 
