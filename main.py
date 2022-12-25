@@ -186,9 +186,8 @@ class Game:
 
         self.ended = False
 
-        # fonction permettant la création d'une partie, vérifie sa taille, son score et sa forme.
-        # elle crée aussi le fichier unique où le plateau de la partie sera stockée
-
+    # fonction permettant la création d'une partie, vérifie sa taille, son score et sa forme.
+    # elle crée aussi le fichier unique où le plateau de la partie sera stockée
     def setup(self):
 
         if not (21 <= self.size <= 26):
@@ -211,6 +210,7 @@ class Game:
         if self.path == "":
             self.path = self.shape.lower() + "_" + time.now().strftime("%d-%m-%Y@%H-%M-%S") + ".txt"
 
+    #Execute l'ensemble des actions d'un tours
     def tick(self):
         # choisit quels blocs à afficher suivant la règle <self.randomBlock>
         if self.randomBlock:
@@ -309,7 +309,8 @@ class Game:
         self.snapshots.append(deepcopy(self.grid))
         self.tickCount += 1
 
-    # sauvegarde le plateau de jeu de la partie en cours dans un nouveau fichier
+    #sauvegarde la partie en cours <self.snapshots[1:]> dans un nouveau fichier
+    #<self.snapshots[1:]> contient alors <self.gamerTag> <self.shape> <self.size> <self.score> <self.grid>
     def save_grid(self):
         try:
             if not os.path.exists("./games/"):
@@ -349,8 +350,7 @@ class Game:
         for _ in range(self.size // 2):
             del self.grid[self.size // 2 + self.size % 2]
 
-        # crée un le cercle dans <self.grid>
-
+    # crée un le cercle dans <self.grid>
     def make_circle(self):
         center = self.size // 2
         if self.size % 2 == 0:
@@ -366,8 +366,7 @@ class Game:
 
             self.grid.append(ligne)
 
-        # crée un le losange dans <self.grid>
-
+    # crée un le losange dans <self.grid>
     def make_losange(self):
         mid = self.size / 2
         # par comme "parité"
@@ -389,8 +388,7 @@ class Game:
 
             self.grid.append(ligne)
 
-        # print dans la console les blocks proposés au joueur <blocks>, leurs lettres et demande au joueur d'en choisir un
-
+    # print dans la console les blocks proposés au joueur <blocks>, leurs lettres et demande au joueur d'en choisir un
     def print_HUD(self, blocks):
         print("")
         print("0. ARRÊTER LA PARTIE")
