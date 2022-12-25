@@ -1,10 +1,11 @@
 # coding=utf-8
-
-from math import *
+#Projet Tetrus Guillaume DELHAYE Idir NAIT MEDDOUR Tomas TARGE
+#Fichier principal
+import os
+import random as rand
 from copy import deepcopy
 from datetime import datetime as time
-import random as rand
-import os
+from math import *
 
 # formes t=tous c=cercle l=losange
 tl = [[0, 0, 0, 0],
@@ -159,19 +160,20 @@ gridLosange += gridCommon
 # Variable purement utilitaire, pour éviter de se répéter
 alphabet = "abcdefghijklmnopqrstuwxyz"
 
+#classe game contenant une partie, tous ses paramètres et ses fonctions
 class Game:
     def __init__(self, size=21):
-        self.size = size
-        self.grid = []
+        self.size = size #taille du plateau
+        self.grid = [] #plateau sous forme de matrice
         # snapshots[0] = options de la partie (nom, forme du plateau, taille du plateau, score)
         # le reste = les grilles
         self.snapshots = [tuple()]
 
-        self.score = 0
+        self.score = 0 #score
         self.trials = 3  # max 3 erreurs successives
 
         self.shape = "TRIANGLE"  # forme du plateau.
-        self.randomBlock = True
+        self.randomBlock = True #règle définissant les blocs disponibles à chaque tour
 
         self.path = "" # Le fichier dans lequel on écrit nos plateaux. Dépend de self.shape au lancement du jeu.
         self.gamerTag = "Inconnu"
@@ -182,6 +184,8 @@ class Game:
 
         self.ended = False
 
+        #fonction permettant la création d'une partie, vérifie sa taille, son score et sa forme.
+        #elle crée aussi le fichier unique où le plateau de la partie sera stockée
     def setup(self):
 
         if not (21 <= self.size <= 26):
@@ -205,6 +209,7 @@ class Game:
             self.path = self.shape.lower() + "_" + time.now().strftime("%d-%m-%Y@%H-%M-%S") + ".txt"
 
     def tick(self):
+        #choisit quels blocs à afficher suivant la règle <self.randomBlock>
         if self.randomBlock:
             rand.shuffle(self.blocks)
             blocks_suggested = self.blocks[:3]
@@ -297,6 +302,7 @@ class Game:
         self.snapshots.append(deepcopy(self.grid))
         self.tickCount += 1
 
+        #sélectionne le bloc correspondant à la lettre donnée <wanted_block> parmi ceux proposés <options>
     def select_block(self, options, wanted_block):
         while True:
             if 0 < len(wanted_block) == 1:
@@ -313,6 +319,7 @@ class Game:
             wanted_block = input().lower()
         return chosen_block_arr
 
+    #demande au joueur de faire tourner un bloc <block> d'un certains angle
     def rotate_block(self, block):
         print("Veuillez entrer une rotation (0, 90, 180, -90) : ")
         while True:
@@ -330,6 +337,7 @@ class Game:
         return block
 
 
+    #sauvegarde le plateau de jeu de la partie en cours dans un nouveau fichier
     def save_grid(self):
         try:
             if not os.path.exists("./games/"):
@@ -349,6 +357,7 @@ class Game:
         except IOError:
             print("Oof ! Je n'ai pas réussi à sauvegarder votre partie...")
 
+    #met le contenu du fichier plateau dans la matrice <self.grid>
     def read_grid(self):
         with open(self.path) as file:
             lines = file.readlines()
@@ -360,11 +369,14 @@ class Game:
                     self.grid[x][y] = int(l[y])
 
 
+    #crée un triangle dans <self.grid>
     def makeTriangle(self):
         self.makeLosange()
         for _ in range(self.size // 2):
             del self.grid[self.size // 2 + self.size % 2]
-        
+
+
+        #crée un le cercle dans <self.grid>
     def makeCircle(self):
         center = self.size // 2
         if self.size % 2 == 0:
@@ -380,6 +392,7 @@ class Game:
             
             self.grid.append(ligne)
 
+        #crée un le losange dans <self.grid>
     def makeLosange(self):
         mid = self.size / 2
         # par comme "parité"
@@ -401,7 +414,7 @@ class Game:
 
             self.grid.append(ligne)
 
-
+        #print dans la console les blocks proposés au joueur <blocks>, leurs lettres et demande au joueur d'en choisir un
     def print_HUD(self, blocks):
         print("")
         print("0. ARRÊTER LA PARTIE")
@@ -441,6 +454,7 @@ class Game:
             if len(blocks) < counter:
                 break
 
+    #print le plateau de jeu contenu dans <self.grid> dans la console
     def print_grid(self):
         
         print(end="     ")
@@ -473,6 +487,7 @@ class Game:
                 print(f"<< SCORE : {self.score} >>")
 
 
+    #return si la ligne est vide ou non
     def row_state(self):
         res = []
         for i in range(len(self.grid)):
@@ -485,11 +500,13 @@ class Game:
                 res.append(i)
         return res
 
+    #vide une ligne <i> dans self.grid
     def row_clear(self, i):
         for o in range(self.size):
             if self.grid[i][o] != 0:
                 self.grid[i][o] = 1
 
+    #return si la colonne est vide ou non
     def col_state(self):
         res = []
         for i in range(self.size):
@@ -504,11 +521,13 @@ class Game:
                 res.append(i)
         return res
 
+    #vide une colonne <i> dans self.grid
     def col_clear(self, j):
         for o in range(len(self.grid)):
             if self.grid[o][j] != 0:
                 self.grid[o][j] = 1
 
+    #fait tomber tous les blocs volants d'une case et return si des blocs sont tombés et donc s'il faut répéter la fonction
     def blocks_fall(self):
         something_changed = False
 
@@ -522,10 +541,9 @@ class Game:
         if something_changed:
             self.blocks_fall()
 
-
+    #return si oui ou non un <block> peut entrer dans la grille de jeu si on le place aux coordonnées <x>,<y>
     def valid_position(self, block, x, y):
-        """Vérifie si <block> peut entrer dans la grille de jeu si on le place aux coordonnées <x>,<y>
-        """
+
         for i in range(len(block[0])):
             for j in range(len(block)):
                 try:
@@ -541,6 +559,7 @@ class Game:
                     continue
         return True
 
+    #place un <block> aux coordonnées <x> <y> dans la matrice <self.grid>
     def place_block(self, block, x, y):
         for i in range(len(block[0])):
             for j in range(len(block)):
@@ -549,6 +568,7 @@ class Game:
                 except IndexError:
                     continue
 
+    #arrête la partie <self.set_ended> et le print au joueur
     def lose_game(self):
         printLine()
 
@@ -556,14 +576,16 @@ class Game:
         print(f"// SCORE : {self.score} //")
         printLine()
         self.set_ended(True)
-    
+
+    #print le score et arrête la partie <self.set_ended>
     def end_game(self):
         printLine()
         print("SCORE :", self.score)
         printLine()
 
         self.set_ended(True)
-    
+
+    #arrête ou non la partie <bool> et demande au joueur s'il veut la sauvegarder
     def set_ended(self, bool):
         self.ended = bool
         if not bool: return None
@@ -577,19 +599,19 @@ class Game:
         self.save_grid()
 
 
-
+#print une ligne avec un certains <pattern>, <"UW"> par défaut
 def printLine(pattern="UW"):
     for i in range(64):
         print(pattern, end="")
     print(pattern)
 
 
+#Efface la page, en faisant 32 fois un print("")
 def jumpPage():
-    """Efface la page, en faisant 32 fois un print("")"""
     for _ in range(32):
         print("")
 
-
+#print la page d'accueil
 def printHomepage():
     jumpPage()
     print("       _____    _                   ")
@@ -607,10 +629,11 @@ def printHomepage():
     printLine()
 
 
+#définit les input de la page d'accueil
 def inputHomePage():
     choice = ""
 
-    # On ne devrait pas sortir de cette fonction (donc du programme entier) une fois qu'on a fini de configurer le jeu.
+    #On ne sort pas de cette fonction (donc du programme entier) qu'une fois qu'on a fini de configurer le jeu.
     while choice != "1":
         choice = input()
         if choice == "2":
@@ -627,7 +650,7 @@ def inputHomePage():
         case "CERCLE":
             game.makeCircle()
 
-
+#print les règles du jeu
 def printRules():
     jumpPage()
     printLine()
@@ -653,12 +676,13 @@ def printRules():
     print("     Entrée: HOME")
     printLine()
 
-
+#return à la page d'accueil au moindre input
 def inputRules():
     input()
     printHomepage()
 
 
+#print la page de configuration du jeu
 def printConfiguration():
     alea = "TOUS les blocs"
     if game.randomBlock:
@@ -679,7 +703,7 @@ def printConfiguration():
     print("         7 : HOME")
     printLine()
 
-
+#définit les input de la page de configuration du jeu
 def inputConfiguration():
     choice = ""
 
@@ -712,14 +736,14 @@ def inputConfiguration():
 
         printHomepage()
 
-
+#print le message de saisie de la taille du plateau de jeu
 def printSizeChoice():
     jumpPage()
     printLine()
     print(f"     Choisir la taille du plateau de jeu entre {minSize} et {maxSize}")
     printLine()
 
-
+#définit les input du choix de la taille du plateau de jeu,tout nombre entre 21 et 16
 def inputSizeChoice():
     okay = False
 
@@ -740,6 +764,7 @@ def inputSizeChoice():
             print("Veuillez écrire un nombre entre 21 et 26 inclus")
     
     printConfiguration()
+
 
 
 def trim_matrix(matrix, forbidden = 0):
@@ -795,24 +820,7 @@ assert trim_matrix([
            [0,0,0,0,0,1]
            ]
 
-
-def isInPoly(points, x, y):
-    # source : https://www.eecs.umich.edu/courses/eecs380/HANDOUTS/PROJ2/InsidePoly.html
-    # Randolph Franklin
-    count = 0
-
-    npol = len(points)
-    for i in range(0, npol, 1):
-        j = (i + 1) % npol
-        if ((((points[i][1] <= y) and (y < points[j][1])) or
-             ((points[j][1] <= y) and (y < points[i][1]))) and
-                (x < (points[j][0] - points[i][0]) * (y - points[i][1]) / (points[j][1] - points[i][1]) + points[i][
-                    0])):
-            count += 1
-
-    return not count % 2 == 0
-
-
+#fait tourner une matrice <matrix> d'un certains angle <rot>
 def rotate_matrix(matrix, rot):
     """La matrice doit être rectangulaire, sinon une exception va être levée
     """
@@ -837,13 +845,12 @@ def rotate_matrix(matrix, rot):
             return rotate_matrix(rotate_matrix(matrix, 90), 180)
         
 
-# associer select bloc à partie logique en parallèle à printblocs
-
+#print un <block> dans la console sous la forme de carrés pleins <◼>
 def print_block(block):
     for i in range(len(block)):
         print("  ".join(["◼" if n == 1 else " " for n in block[i]]))
 
-
+#exécute le programme et initialise des valeurs statiques
 if __name__ == "__main__":
 
     minSize = 21
@@ -859,4 +866,3 @@ if __name__ == "__main__":
 
     while not game.ended:
         game.tick()
-

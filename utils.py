@@ -1,3 +1,5 @@
+#Projet Tetrus Guillaume DELHAYE Idir NAIT MEDDOUR Tomas TARGE
+#Fichier de fonctions utilitaires
 def getBoardInMatrice(size):
     matrice = []
     board = open("board.txt", "r")
