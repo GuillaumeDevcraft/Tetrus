@@ -1,22 +1,34 @@
-IMPORTANT ! Il vous faut Python 3.10.9
+                            ╔═══════════════════════════════════════════════════════════╗
+                            ║                                                           ║
+                            ║    ████████╗███████╗████████╗██████╗ ██╗   ██╗███████╗    ║
+                            ║    ╚══██╔══╝██╔════╝╚══██╔══╝██╔══██╗██║   ██║██╔════╝    ║
+                            ║       ██║   █████╗     ██║   ██████╔╝██║   ██║███████╗    ║
+                            ║       ██║   ██╔══╝     ██║   ██╔══██╗██║   ██║╚════██║    ║
+                            ║       ██║   ███████╗   ██║   ██║  ██║╚██████╔╝███████║    ║
+                            ║       ╚═╝   ╚══════╝   ╚═╝   ╚═╝  ╚═╝ ╚═════╝ ╚══════╝    ║
+                            ║                                                           ║
+                            ╚═══════════════════════════════════════════════════════════╝
+
+
 Mise en garde ! Les caractères de différentes tailles sur PyCharm font bugger l'interface, nous ne vous conseillons pas cet IDE.
 À la place, il est préférable d'y jouer à partir de Visual Studio Code, ou n'importe quelle console capable d'afficher
 des caractères UTF-8 tous de la même largeur.
 
 
 
-[Pour jouer] : 
+[Pour jouer] 
+    - Installez Python 3.10.9
 
-Exécutez main.py et laissez vous guider par les menus.
+    - Exécutez main.py et laissez vous guider par les menus.
 
-Pour être sûr de pouvoir sauvegarder vos parties, ne placez pas les scripts dans un dossier d'administrateur.
+Note : Pour être sûr de pouvoir sauvegarder vos parties, ne placez pas les scripts dans un dossier d'administrateur.
 
 
 
 Présentation :
 
-Bienvenue sur Tetrus ! Un jeuou tu poses blocs pour détruire des lignes et gagner des points !
-Ce jeu possède des similitude avec le Tétris.
+Bienvenue sur Tetrus ! Un jeu où vous posez blocs pour détruire des lignes et gagner des points !
+Ce jeu possède des similitudes avec Tetris.
 Le principe est simple. Vous placez les blocs mis à votre disposition sur la grille de jeu.
 
 Votre objectif est que la partie dure le plus longtemps (et ainsi, que vous ayez le meilleur score).
@@ -25,8 +37,8 @@ De même pour les colonnes, mais une suppression de colonne a aussi pour effet d
 n'ayant aucun support sous elles.
 
 À chaque tour, vous disposez de trois essais pour entrer un placement de bloc valide. Si vous échouez trois fois de
-manière consécutive, vous perdez. Pour sélectionner un bloc c'est simple, il suffit d'entrer l'une des lettres d'un 
-des bloc proposés (elles sont affichées à côté de chaque bloc).
+manière consécutive, vous perdez. Pour sélectionner un bloc, il suffit d'entrer la lettre d'un 
+des blocs proposés (elles sont affichées à côté de chaque bloc).
 Vous pouvez également arrêter une partie prématurément, en tapant 0 au lieu d'une lettre de bloc.
 
 Vous avez à votre disposition différentes options que vous pouvez changer avant le début de la partie,

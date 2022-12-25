@@ -1,6 +1,11 @@
 # coding=utf-8
-# Projet Tetrus Guillaume DELHAYE Idir NAIT MEDDOUR Tomas TARGE
-# Fichier principal
+"""
+                 ====== Tetrus ======
+par Guillaume DELHAYE, Idir NAIT MEDDOUR et Tomas TARGE
+
+
+
+"""
 import os
 import random as rand
 from copy import deepcopy
