@@ -640,7 +640,7 @@ def printRules():
     print("     Vous avez à votre disposition différentes options que vous pouvez changer avant le début de la partie,")
     print("     tel que la taille du plateau, sa forme, ou les blocs mis à votre disposition à chaque tour.")
     print("")
-    print("     Enfin, vous avez également l'option à chaque fin de partie de sauvegarder votre partie pour la partager, ou y revenir.")
+    print("     Enfin, vous avez également l'option à chaque fin de partie de sauvegarder votre partie pour la partager.")
     print("")
     print("")
     print("     Entrée: HOME")
