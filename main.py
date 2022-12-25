@@ -316,15 +316,15 @@ class Game:
                 os.mkdir("./games")
             with open("./games/" + self.path, "w") as file:
                 file.write("/!\\ NE PAS TOUCHER CE FICHIER ! /!\\\n")
+                file.write("Nom, Forme du plateau, Taille du plateau, Score final\n")
                 file.write(str(self.snapshots[0]).strip("()").replace("'", "") + "\n\n")
 
                 counter = 1
                 for grid in self.snapshots[1:]:
-                    file.write(str(counter) + ".\n")
+                    file.write("g" + str(counter) + "\n")
                     for ligne in grid:
                         file.write(" ".join([str(n) for n in ligne]))
                         file.write("\n")
-                    file.write("\n\n")
                     counter += 1
         except IOError:
             print("Oof ! Je n'ai pas réussi à sauvegarder votre partie...")
