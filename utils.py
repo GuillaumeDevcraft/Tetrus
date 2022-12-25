@@ -1,16 +1,24 @@
-# Projet Tetrus Guillaume DELHAYE Idir NAIT MEDDOUR Tomas TARGE
-# Fichier de fonctions utilitaires
-from main import alphabet
+"""
+                 ====== Tetrus ======
+par Guillaume DELHAYE, Idir NAIT MEDDOUR et Tomas TARGE
 
+C'est un script à objectif utilitaire, pour aider le programme principal.
 
-# fait tourner une matrice <matrix> d'un certains angle <rot>
+Auteurs : Idir et Guillaume
+"""
+
+# Sert dans le programme principal
+alphabet = "abcdefghijklmnopqrstuwxyz"
+
 def rotate_matrix(matrix, rot):
-    """La matrice doit être rectangulaire, sinon une exception va être levée
+    """Retourne une matrice <matrix> qui a subit une rotation <rot>
+    La matrice doit être rectangulaire, sinon une exception va être levée
     """
     match rot % 360:
         case 0:
             return matrix
         case 90:
+            # On lit notre matrice en colonne depuis la dernière, et on les écrit sous forme de ligne dans la matrice <result>
             result = []
             for y in range(len(matrix[0])):
                 new_line = []
@@ -20,17 +28,20 @@ def rotate_matrix(matrix, rot):
             return result
         case 180:
             result = []
-            for ligne in matrix:
+            for ligne in matrix: # On inverse chaque ligne, et leur ordre dans la matrice de base
                 ligne.reverse()
                 result.insert(0, ligne)
             return result
         case 270:
+            # Une rotation de 270° est simplement une rotation de 90° suivie d'une
+            # autre rotation de 180°
             return rotate_matrix(rotate_matrix(matrix, 90), 180)
+            
 
-    # sélectionne le bloc correspondant à la lettre donnée <wanted_block> parmi ceux proposés <options>
 
 
 def select_block(options, wanted_block):
+    """Sélectionne le bloc correspondant à la lettre donnée <wanted_block> parmi ceux proposés <options>"""
     while True:
         if len(wanted_block) == 1:
             if wanted_block[0] in alphabet:
@@ -47,8 +58,8 @@ def select_block(options, wanted_block):
     return chosen_block_arr
 
 
-# demande au joueur de faire tourner un bloc <block> d'un certains angle
 def rotate_block(block):
+    """Demande au joueur de faire tourner un bloc <block> d'un certain angle"""
     print("Veuillez entrer une rotation (0, 90, 180, -90) : ")
     while True:
         try:
@@ -65,8 +76,8 @@ def rotate_block(block):
     return block
 
 
-# print un <block> dans la console sous la forme de carrés pleins <◼>
 def print_block(block):
+    """Affiche un <block>, c'est-à-dire une liste 2D, dans la console sous la forme de carrés pleins <◼>"""
     for i in range(len(block)):
         print("  ".join(["◼" if n == 1 else " " for n in block[i]]))
 
@@ -108,12 +119,12 @@ def trim_matrix(matrix, forbidden=0):
             try:  # Au cas où <matrix> n'est pas rectangulaire, on met quelque chose pour remplacer
                 ligne.append(matrix[x][y])
             except IndexError:
-                ligne.append(0)  # Valeur arbitraire de remplacement, choisie pour les besoins du Tetrus
+                ligne.append(0)  # Valeur totalement arbitraire de remplacement, choisie pour les besoins du Tetrus
         result.append(ligne)
 
     return result
 
-
+# Cette fonction étant assez complexe, il est utile de laisser un cas exemple au cas où quelqu'un essayerait de la changer plus tard.
 assert trim_matrix([
     [0, 0, 0, 1, 1, 1, 0, 1, 0, 0],
     [0, 0, 0, 0, 1, 0, 0, 0, 0, 0],

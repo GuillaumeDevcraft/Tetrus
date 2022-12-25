@@ -3,12 +3,17 @@
                  ====== Tetrus ======
 par Guillaume DELHAYE, Idir NAIT MEDDOUR et Tomas TARGE
 
+La plupart des fonctions de ce fichier ne retournent pas de valeur (sauf mention contraire), car elle sont plus là
+pour effectuer une tâche répétitive que pour faire un calcul pour renvoyer un produit.
 
+Auteurs : Idir, Tomas et Guillaume
 
 """
+
 import os
 import random as rand
 from copy import deepcopy
+from time import sleep
 from datetime import datetime as time
 from math import *
 
@@ -163,18 +168,18 @@ gridCercle += gridCommon
 gridTriangle += gridCommon
 gridLosange += gridCommon
 
-# Variable purement utilitaire, pour éviter de se répéter
-alphabet = "abcdefghijklmnopqrstuwxyz"
 
-
-# classe game contenant une partie, tous ses paramètres et ses fonctions
 class Game:
     def __init__(self, size=21):
+        """Le constructeur de la classe. Certaines variables sont éditées dans Game.setup(), d'autres avant (voir input_size_choice())
+        """
         self.size = size  # taille du plateau
         self.grid = []  # plateau sous forme de matrice
-        # snapshots[0] = options de la partie (nom, forme du plateau, taille du plateau, score)
-        # le reste = les grilles
-        self.snapshots = [tuple()]
+
+        
+        
+        self.snapshots = [tuple()] # snapshots[0] = options de la partie (nom, forme du plateau, taille du plateau, score)
+                                   # le reste = les grilles
 
         self.score = 0  # score
         self.trials = 3  # max 3 erreurs successives
@@ -183,17 +188,19 @@ class Game:
         self.randomBlock = True  # règle définissant les blocs disponibles à chaque tour
 
         self.path = ""  # Le fichier dans lequel on écrit nos plateaux. Dépend de self.shape au lancement du jeu.
-        self.gamerTag = "Inconnu"
+        self.gamerTag = "Inconnu" 
 
         self.blocks = []  # Le jeu de blocs de cette partie
 
-        self.tickCount = 0  # Combien de tours sont passés ? Cela sert pour la fonction read_grid()
+        self.tickCount = 0  # Combien de tours sont passés ?
 
         self.ended = False
 
-    # fonction permettant la création d'une partie, vérifie sa taille, son score et sa forme.
-    # elle crée aussi le fichier unique où le plateau de la partie sera stockée
     def setup(self):
+        """
+        Fonction permettant la création d'une partie, vérifie sa taille, son score et sa forme.
+        Elle prépare le chemin du fichier où le plateau de la partie sera stockée si l'utilisateur le demande.
+        """
 
         if not (21 <= self.size <= 26):
             self.size = 21
@@ -208,22 +215,24 @@ class Game:
                 self.blocks = deepcopy(gridLosange)
             case "CERCLE":
                 self.blocks = deepcopy(gridCercle)
-            case _:
+            case _: # Ce cas ne devrait pas se produire.
                 self.shape = "TRIANGLE"
                 self.blocks = deepcopy(gridTriangle)
 
         if self.path == "":
             self.path = self.shape.lower() + "_" + time.now().strftime("%d-%m-%Y@%H-%M-%S") + ".txt"
 
-    #Execute l'ensemble des actions d'un tours
     def tick(self):
-        # choisit quels blocs à afficher suivant la règle <self.randomBlock>
+        """Execute l'ensemble des actions d'un tours"""
+
+        # choisis quels blocs à afficher suivant la règle self.randomBlock
         if self.randomBlock:
             rand.shuffle(self.blocks)
             blocks_suggested = self.blocks[:3]
         else:
             blocks_suggested = self.blocks
 
+        # Le boucle while permet de revenir au début du choix d'un bloc si le joueur propose un coup illégal
         while True:
             self.print_grid()
             print("")
@@ -281,16 +290,19 @@ class Game:
                     print("")
                     self.lose_game()
                     return
-                print_line("/!\\")
+                print_line("! ")
                 # "s"*int(self.trials != 1) signifie simplement que s'il reste plusieurs essais au joueur, on affiche un s (int(True) = 1 et int(False) = 0)
                 print(f"AÏE ! Votre coup est illégal, il vous reste {self.trials} essai" + "s" * int(
                     self.trials != 1) + " sur 3.")
-                print_line("/!\\")
+                print_line(" !")
+                sleep(1.5)
 
         # Récompenses !
-        full_rows = self.row_state()
-        full_cols = self.col_state()
-        while full_rows != [] or full_cols != []:
+        full_rows = self.rows_state()
+        full_cols = self.cols_state()
+        # La chute de blocs peut engendrer des combos, d'où la boucle while
+        while full_rows != [] or full_cols != []: 
+            # Pour chaque bloc supprimé, on ajoute 2 au score, donc l'effacement de lignes plus longues donne plus de points.
             for row_index in full_rows:
                 self.score += 2 * self.grid[row_index].count(2)
             for col_index in full_cols:
@@ -303,26 +315,30 @@ class Game:
 
             for row_index in full_rows:
                 self.row_clear(row_index)
-            if full_cols != []:
+            if full_cols != []: # Seulement si des colonnes ont été remplies, peut-on faire tomber la grille.
                 for col_index in full_cols:
                     self.col_clear(col_index)
                 self.blocks_fall()
 
-            full_rows = self.row_state()
-            full_cols = self.col_state()
+            full_rows = self.rows_state()
+            full_cols = self.cols_state()
 
+        # On ajoute la nouvelle grille dans les snapshots. Le deepcopy() est important car sinon, on n'ajoute a self.snapshots
+        # que des références à self.grid, pas son contenu.
         self.snapshots.append(deepcopy(self.grid))
         self.tickCount += 1
 
-    #sauvegarde la partie en cours <self.snapshots[1:]> dans un nouveau fichier
-    #<self.snapshots[1:]> contient alors <self.gamerTag> <self.shape> <self.size> <self.score> <self.grid>
     def save_grid(self):
+        """Sauvegarde la partie en cours <self.snapshots> dans un nouveau fichier
+        <self.snapshots[0]> contient un tuple avec les données de la partie et du joueur dedans
+        <self.snapshots[1:]> contient alors toutes les grids au fil de la partie
+        """
         try:
-            if not os.path.exists("./games/"):
+            if not os.path.exists("./games/"): # Créer le dossier, sinon on a une IOError.
                 os.mkdir("./games")
             with open("./games/" + self.path, "w") as file:
                 file.write("/!\\ NE PAS TOUCHER CE FICHIER ! /!\\\n")
-                file.write("Nom, Forme du plateau, Taille du plateau, Score final\n")
+                file.write("Nom, Forme du plateau, Taille du plateau, Score final\n")   # 
                 file.write(str(self.snapshots[0]).strip("()").replace("'", "") + "\n\n")
 
                 counter = 1
@@ -335,8 +351,8 @@ class Game:
         except IOError:
             print("Oof ! Je n'ai pas réussi à sauvegarder votre partie...")
 
-    # met le contenu du fichier plateau dans la matrice <self.grid>
     def read_grid(self):
+        """Cette fonction n'est jamais utilisée, et ne fonctionne d'ailleurs pas."""
         try:
             with open("./games/" + self.path) as file:
                 lines = file.readlines()
@@ -349,14 +365,16 @@ class Game:
         except IOError:
             print(f"Impossible de lire {self.path}. Le dossier games/ a-t-il été créé ?")
 
-    # crée un triangle dans <self.grid>
     def make_triangle(self):
+        """Crée un triangle vide dans <self.grid>"""
+
+        # Il suffit de faire un losange et d'en tronquer la moitié inférieure
         self.make_losange()
         for _ in range(self.size // 2):
             del self.grid[self.size // 2 + self.size % 2]
 
-    # crée un le cercle dans <self.grid>
     def make_circle(self):
+        """Crée un cercle vide dans <self.grid>"""
         center = self.size // 2
         if self.size % 2 == 0:
             center -= 0.5
@@ -371,8 +389,8 @@ class Game:
 
             self.grid.append(ligne)
 
-    # crée un le losange dans <self.grid>
     def make_losange(self):
+        """Crée un triangle vide dans <self.grid>"""
         mid = self.size / 2
         # par comme "parité"
         par = self.size % 2
@@ -393,18 +411,20 @@ class Game:
 
             self.grid.append(ligne)
 
-    # print dans la console les blocks proposés au joueur <blocks>, leurs lettres et demande au joueur d'en choisir un
     def print_HUD(self, blocks):
+        """Affiche dans la console les blocks proposés au joueur <blocks> avec leur lettre respective."""
+
         print("")
         print("0. ARRÊTER LA PARTIE")
         print("Choisissez un bloc parmi les suivants à l'aide de leur lettre.")
 
         # On donne à chaque bloc un terrain (un "plot") de la taille de celui qui a besoin du plus d'espace.
         plot_size = max([len(liste) for liste in
-                        blocks])  # Les listes par compréhension sont parfaites pour faire des opérations sur chaque élément d'une liste
+                        blocks])  # Les listes par compréhension sont optimales pour faire des opérations sur chaque élément d'une liste
 
         separator = (("   " * plot_size) + "╦ ")
 
+        # Le système de compteur (counter) permet d'afficher au maximum 8 blocs par ligne (pour éviter les retours à la ligne non voulus)
         counter = 0
         while True:
             blocks_in_line = blocks[counter:8 + counter]
@@ -420,9 +440,11 @@ class Game:
                     try:
                         block_str = [str(el) for el in block[x]]
                     except IndexError:
-                        block_str = plot_size * ["0"]
+                        block_str = plot_size * ["0"] # Si la matrice du bloc n'est pas assez grande, on peut simplement écrire du vide (0)
                     while len(block_str) < plot_size:
-                        block_str += ["0"]
+                        block_str += ["0"] # on fait aussi cela ici.
+
+                    # On affiche plutôt des carrés et des vides pour que ce soit plus joli
                     final = "  ".join(block_str).replace("0", " ").replace("1", "◼")
 
                     total_ligne.append(final)
@@ -434,8 +456,8 @@ class Game:
             if len(blocks) < counter:
                 break
 
-    # print le plateau de jeu contenu dans <self.grid> dans la console
     def print_grid(self):
+        """Affiche le plateau de jeu contenu dans <self.grid> dans la console"""
 
         print(end="     ")
         for i in range(1, 10):
@@ -460,6 +482,7 @@ class Game:
             line_str = line_str.replace("1", "▢")
             line_str = line_str.replace("0", " ")
 
+            # À la 6e ligne, on affiche aussi le score à droite.
             # Il y a en réalité un moyen beaucoup plus compact de faire ce que je fais ici, mais pour la lisibilité du code, restons là-dessus
             if i != 6:
                 print(line_str)
@@ -467,8 +490,9 @@ class Game:
                 print(line_str, end="      ")
                 print(f"<< SCORE : {self.score} >>")
 
-    # return si la ligne est vide ou non
-    def row_state(self):
+    def rows_state(self):
+        """Retourne une liste de toutes les lignes remplies"""
+
         res = []
         for i in range(len(self.grid)):
             row = self.grid[i]
@@ -480,14 +504,15 @@ class Game:
                 res.append(i)
         return res
 
-    # vide une ligne <i> dans self.grid
     def row_clear(self, i):
+        """Vide une ligne d'indice <i> dans self.grid"""
         for o in range(self.size):
             if self.grid[i][o] != 0:
                 self.grid[i][o] = 1
 
-    # return si la colonne est vide ou non
-    def col_state(self):
+    def cols_state(self):
+        """Retourne une liste de toutes les colonnes remplies"""
+
         res = []
         for i in range(self.size):
             col_list = []
@@ -501,14 +526,14 @@ class Game:
                 res.append(i)
         return res
 
-    # vide une colonne <i> dans self.grid
     def col_clear(self, j):
+        """Vide une colonne d'indice <j> dans self.grid"""
         for o in range(len(self.grid)):
             if self.grid[o][j] != 0:
                 self.grid[o][j] = 1
 
-    # fait tomber tous les blocs volants d'une case et return si des blocs sont tombés et donc s'il faut répéter la fonction
     def blocks_fall(self):
+        """Fait tomber tous les blocs volants de la grille, et se répète automatiquement jusqu'à ce que tout soit tombé."""
         something_changed = False
 
         for x in range(len(self.grid) - 1, 0, -1):
@@ -521,8 +546,8 @@ class Game:
         if something_changed:
             self.blocks_fall()
 
-    # return si oui ou non un <block> peut entrer dans la grille de jeu si on le place aux coordonnées <x>,<y>
     def valid_position(self, block, x, y):
+        """Retourne si oui ou non un <block> peut entrer dans la grille de jeu si on le place aux coordonnées <x>,<y>"""
 
         for i in range(len(block[0])):
             for j in range(len(block)):
@@ -539,8 +564,10 @@ class Game:
                     continue
         return True
 
-    # place un <block> aux coordonnées <x> <y> dans la matrice <self.grid>
     def place_block(self, block, x, y):
+        """Place un <block> aux coordonnées <x>,<y> dans la matrice <self.grid>,
+        le coin inférieur gauche de la pièce étant le point d'origine
+        """
         for i in range(len(block[0])):
             for j in range(len(block)):
                 try:
@@ -548,8 +575,8 @@ class Game:
                 except IndexError:
                     continue
 
-    # arrête la partie <self.set_ended> et le print au joueur
     def lose_game(self):
+        """Arrête la partie <self.set_ended> et le print au joueur, avec un message d'échec"""
         print_line()
 
         print("OOF ! Vous avez perdu.", end=" " * 15)
@@ -557,16 +584,16 @@ class Game:
         print_line()
         self.set_ended(True)
 
-    # print le score et arrête la partie <self.set_ended>
     def end_game(self):
+        """Affiche le score et arrête la partie à l'aide de <self.set_ended()>"""
         print_line()
         print("SCORE :", self.score)
         print_line()
 
         self.set_ended(True)
 
-    # arrête ou non la partie selon <to> et demande au joueur s'il veut la sauvegarder
     def set_ended(self, to):
+        """Arrête ou non la partie selon <to> et demande au joueur s'il veut la sauvegarder"""
         self.ended = to
         if not to: return None
 
@@ -574,26 +601,28 @@ class Game:
         rep = input("Sauvegarder la partie ? (\"o\" pour oui, autre chose pour non) ").strip().lower()
         if rep not in ["o", "oui", "y", "yes", "1"]: return None
 
-        self.gamerTag = input("Saisissez votre nom : ").strip()
+        rep = input("Saisissez votre nom : ").strip()
+        if rep != "":
+            self.gamerTag = rep
         self.snapshots[0] = self.gamerTag, self.shape, self.size, self.score
         self.save_grid()
 
 
-# print une ligne avec un certains <pattern>, <"UW"> par défaut
 def print_line(pattern="UW"):
+    """Affiche une ligne avec un certain <pattern>, "UW" par défaut"""
     for i in range(64):
         print(pattern, end="")
     print(pattern)
 
 
-# Efface la page, en faisant 32 fois un print("")
 def jump_page():
+    """Efface la page, en faisant 32 fois un print("")"""
     for _ in range(32):
         print("")
 
 
-# print la page d'accueil
 def print_homepage():
+    """Affiche la page d'accueil"""
     jump_page()
     print("       _____    _                   ")
     print("      |_   _|  | |                  ")
@@ -610,11 +639,11 @@ def print_homepage():
     print_line()
 
 
-# définit les input de la page d'accueil
 def input_home_page():
+    """Écoute et traite l'entrée clavier de l'utilisateur, quand il est sur la page d'accueil."""
     choice = ""
 
-    # On ne sort pas de cette fonction (donc du programme entier) qu'une fois qu'on a fini de configurer le jeu.
+    # On ne sort de cette fonction (donc du programme entier) qu'une fois qu'on a fini de configurer le jeu.
     while choice != "1":
         choice = input()
         if choice == "2":
@@ -632,8 +661,9 @@ def input_home_page():
             game.make_circle()
 
 
-# print les règles du jeu
 def print_rules():
+    """Affiche les règles du jeu"""
+
     jump_page()
     print_line()
     print("     Tetrus, c'est quoi ?")
@@ -662,14 +692,14 @@ def print_rules():
     print_line()
 
 
-# return à la page d'accueil au moindre input
 def input_rules():
+    """Reviens à la page d'accueil au moindre input"""
     input()
     print_homepage()
 
 
-# print la page de configuration du jeu
 def print_configuration():
+    """Affiche la page de configuration du jeu"""
     alea = "TOUS les blocs"
     if game.randomBlock:
         alea = "Blocs aléatoires"
@@ -690,8 +720,8 @@ def print_configuration():
     print_line()
 
 
-# définit les input de la page de configuration du jeu
 def input_configuration():
+    """Écoute et traite l'entrée clavier de l'utilisateur, quand il est sur la page de configuration."""
     choice = ""
 
     reponses_possibles = ["1", "2", "3", "4", "5", "6", "7"]
@@ -724,16 +754,18 @@ def input_configuration():
         print_homepage()
 
 
-# print le message de saisie de la taille du plateau de jeu
 def print_size_choice():
+    """Affiche le message de saisie de la taille du plateau de jeu"""
     jump_page()
     print_line()
     print(f"     Choisir la taille du plateau de jeu entre {minSize} et {maxSize}")
     print_line()
 
 
-# définit les input du choix de la taille du plateau de jeu,tout nombre entre 21 et 16
 def input_size_choice():
+    """Écoute et traite l'entrée clavier de l'utilisateur pour définir la taille du plateau,
+    qui doit être comprise entre minSize et maxSize (variables définies tout en bas).
+    """
     okay = False
 
     while not okay:
@@ -755,11 +787,10 @@ def input_size_choice():
     print_configuration()
 
 
-# exécute le programme et initialise des valeurs statiques
 if __name__ == "__main__":
 
     minSize = 21
-    maxSize = 26
+    maxSize = 26 # Pour les 26 lettres de l'alphabet.
 
     print_homepage()
     game = Game()
